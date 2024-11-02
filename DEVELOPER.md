@@ -17,5 +17,7 @@ Fall 2024
 ## Setup for Development
 
 ## Challenges Encountered
+https://stackoverflow.com/questions/83439/remove-spaces-from-stdstring-in-c
+a
 
 ## Testing
