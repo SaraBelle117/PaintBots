@@ -1,23 +1,34 @@
 #include "ExternalBoardSquare.h"
 
-ExternalBoardSquare::ExternalBoardSquare(){}
+ExternalBoardSquare::ExternalBoardSquare(const InternalBoardSquare& internalSquare):
+    ext_color(internalSquare.getSquareColor()), 
+    ext_square(internalSquare.getSquareType()), 
+    ext_dir(internalSquare.robotDirection()),
+    ext_redRobot(internalSquare.redRobotPresent()),
+    ext_blueRobot(internalSquare.blueRobotPresent())
+{}
 
-Color getSquareColor(){
-       
+Color ExternalBoardSquare::getSquareColor() const
+{
+    return ext_color;
 }
 
-bool redRobotPresent(){
-
+bool ExternalBoardSquare::redRobotPresent() const
+{
+    return ext_redRobot;
 }
 
-bool blueRobotPresent(){
-
+bool ExternalBoardSquare::blueRobotPresent() const
+{
+    return ext_blueRobot;
 }
 
-Direction robotDirection(){
-
+Direction ExternalBoardSquare::robotDirection() const
+{
+    return ext_dir;
 }
 
-SquareType getSquareType(){
-    
+SquareType ExternalBoardSquare::getSquareType() const
+{
+    return ext_square;    
 }
