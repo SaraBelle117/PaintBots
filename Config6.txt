@@ -1,0 +1,8 @@
+#pls no read me ty
+fog_lower_bound = 4
+hit_duration = 200
+long_range_limit = 100
+rock_upper_bound = 62
+fog_upper_bound = 5
+rock_lower_bound = 1
+paintblob_limit = 11

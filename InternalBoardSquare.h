@@ -11,12 +11,14 @@ class InternalBoardSquare{
     public:
         //constructor
         InternalBoardSquare();
+
         //getter methods
         Color getSquareColor() const;
         bool redRobotPresent() const;
         bool blueRobotPresent() const;
         Direction robotDirection() const;
         SquareType getSquareType() const;
+        
         //setter methods
         void setSquareColor(Color col);
         void setRedRobotPresent(bool p);

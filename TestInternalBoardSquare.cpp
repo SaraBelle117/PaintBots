@@ -1,5 +1,6 @@
 #include <iostream>
 #include "InternalBoardSquare.h"
+using namespace std;
 
 void testGetSetColor()
 {
@@ -7,10 +8,10 @@ void testGetSetColor()
     square.setSquareColor(RED);
 
     if(square.getSquareColor() == RED){
-        std::cout << "testSetColor passed!" << std::endl;
+        cout << "Testing set color: PASS" << endl;
     }
     else{
-        std::cout << "testSetColor failed." << std::endl;
+        cout << "Testing set color: FAIL" << endl;
     }
 }
 
@@ -20,19 +21,19 @@ void testRobotPresence()
     square.setRedRobotPresent(true);
 
     if(square.redRobotPresent() == true){
-        std::cout << "testRobotPresence p1 passed!" << std::endl;
+        cout << "Testing set robot1: PASS" << endl;
     }
     else{
-        std::cout << "testRobotPresence p1 failed." << std::endl;
+        cout << "Testing set robot1: FAIL" << endl;
     }
 
     square.setRedRobotPresent(false);
 
     if(square.redRobotPresent() == false){
-        std::cout << "testRobotPresence p2 passed!" << std::endl;
+        cout << "Testing set robot2: PASS" << endl;
     }
     else{
-        std::cout << "testRobotPresence p2 failed." << std::endl;
+        cout << "Testing set robot2: FAIL" << endl;
     }
 }
 
@@ -42,16 +43,17 @@ void testDirection()
     square.setRobotDirection(SOUTH);
 
     if(square.robotDirection() == SOUTH){
-        std::cout << "testDirection passed." << std::endl;
+        cout << "Testing set direction: PASS" << endl;
     }
     else{
-        std::cout << "testDirection failed." << std::endl;
+        cout << "Testing set direction: FAIL" << endl;
     }
 
 }
 
 int main()
 {
+    cout << "Testing Internal Board Square: " << endl;
     testGetSetColor();
     testRobotPresence();
     testDirection();

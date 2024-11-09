@@ -12,6 +12,7 @@ class ExternalBoardSquare {
     public:
         //constructor
         ExternalBoardSquare(const InternalBoardSquare& internalSquare);
+       
         //getter methods
         Color getSquareColor() const;
         bool redRobotPresent() const;

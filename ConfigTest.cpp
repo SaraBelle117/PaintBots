@@ -1,0 +1,89 @@
+#include "Config.h"
+#include <iostream>
+using namespace std;
+
+/**
+ * Prints the values of each game variable for debugging
+ * @param the configuration of the game to print values of
+ */
+void printConfigVals(Config newConfig){
+    cout << "Printing failed config values..." << endl;
+    cout << "Hit duration: " << newConfig.getHitDuration() << endl;
+    cout << "Paint blob limit: " << newConfig.getPaintBlobLimit() << endl;
+    cout << "Rock lower bound: " << newConfig.getRockLowerBound() << endl;
+    cout << "Rock upper bound: " << newConfig.getRockUpperBound() << endl;
+    cout << "Fog lower bound: " << newConfig.getFogLowerBound() << endl;
+    cout << "Fog upper bound: " << newConfig.getFogUpperBound() << endl;
+    cout << "Long range limit: " << newConfig.getLongRangeLimit() << endl;
+}
+
+/**
+ * helper method to test config values 
+ */
+void testConfigValues(const Config& config, const string& filename, int exp_hitDuration, 
+                    int exp_paintBlobLimit, int exp_rockLowerBound, int exp_rockUpperBound, 
+                    int exp_fogLowerBound, int exp_fogUpperBound, int exp_longRangeLimit ){
+    if(config.getHitDuration() == exp_hitDuration && config.getPaintBlobLimit() ==  exp_paintBlobLimit &&
+    config.getRockLowerBound() == exp_rockLowerBound && config.getRockUpperBound() == exp_rockUpperBound &&
+    config.getFogLowerBound() == exp_fogLowerBound && config.getFogUpperBound() == exp_fogUpperBound && 
+    config.getLongRangeLimit() == exp_longRangeLimit){
+        cout << "Test " << filename << " constructor: PASS" << endl;
+    }
+    else{
+        cout << "Test " << filename << " constructor: FAIL" << endl;
+        printConfigVals(config);
+    }
+
+}
+
+/**
+ * Tests that the default constructor has expected values
+ */
+void testDefaultConstructor(){
+    Config newConfig;
+   
+    if(newConfig.getHitDuration() == 20 && newConfig.getPaintBlobLimit() == 30
+        && newConfig.getRockLowerBound() == 10 && newConfig.getRockUpperBound() == 20 
+        && newConfig.getFogLowerBound() == 5 && newConfig.getFogUpperBound() == 10
+        && newConfig.getLongRangeLimit() == 30){
+        cout << "Test default constructor: PASS" << endl;
+    }
+    else{
+        cout << "Test default constructor: FAIL" << endl;
+    }
+}
+
+/**
+ * Tests constructor (with path/file name)
+ */
+void testConstructor(){
+
+    testConfigValues(Config("Config1.txt"), "Config1.txt", 28, 30, 10, 12, 2, 8, 26);
+    testConfigValues(Config("Config2.txt"), "config2.txt", 2, 30, 1, 10, 2, 10, 50);
+    testConfigValues(Config("Config3.txt"), "Config3.txt", 20, 10, 2, 10, 5, 20, 20);
+    testConfigValues(Config("Config4.txt"), "Config4.txt", 20, 30, 10, 20, 2, 30, 55);
+    testConfigValues(Config("Config5.txt"), "Config5.txt", 2, 5, 10, 55, 1, 10, 30);
+    testConfigValues(Config("Config6.txt"), "Config6.txt", 200, 11, 1, 62, 4, 5, 100);
+    testConfigValues(Config("Config7.txt"), "Config7.txt", 10, 2, 2, 15, 7, 8, 30);
+    testConfigValues(Config("Config8.txt"), "Config8.txt", 15, 1, 10, 100, 8, 12, 10);
+    testConfigValues(Config("Config9.txt"), "Config9.txt", 300, 4, 5, 101, 5, 17, 15);
+    testConfigValues(Config("Config10.txt"), "Config10.txt", 45, 35, 3, 25, 5, 10, 30);
+
+    try{
+        Config config("NotRealConfig.txt");
+        cout << "Testing bad file name: FAIL" << endl;
+
+    } catch(const runtime_error& e){
+        cout << "Testing bad file name: PASS" << endl;
+    }
+
+}
+
+int main()
+{
+    cout << "Testing Config class: " << endl;
+    testDefaultConstructor();
+    testConstructor();
+
+    return 0;
+}

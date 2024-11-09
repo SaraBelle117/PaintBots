@@ -1,0 +1,13 @@
+#hit_duration = nothing since this line should not be read hehe
+
+HIT_DURATION = 2
+
+ROCK_LOWER_BOUND = 1
+ROCK_UPPER_BOUND = 10
+
+FOG_LOWER_BOUND = 2
+FOG_UPPER_BOUND = 10
+
+LONG_RANGE_LIMIT = 50
+
+#paint blob should be the default value of 30

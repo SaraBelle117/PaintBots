@@ -1,0 +1,11 @@
+HIT_DURATION = 15
+
+paintblob_lImit = 1
+
+ROCK_UPPER_BOUND = 100
+
+fog_lowEr_bound = 8
+
+fog_uppEr_bound = 12
+
+LONG_range_limit = 10

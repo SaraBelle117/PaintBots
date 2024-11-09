@@ -1,0 +1,18 @@
+hit_Duration = 300
+
+rock_upper_bound = 101
+
+fog_lowEr_bound = 5
+
+fog_uppEr_bound = 17
+
+long_range_limit = 15
+
+
+
+
+
+
+
+paintblob_lImit = 4
+rock_lower_bound = 5

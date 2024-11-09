@@ -1,0 +1,14 @@
+#shouldn't be registered for any val (default val should be given)
+hit_duration
+
+#paintblob_limit should be default val of 30
+
+rock_lower_bound = 10
+
+#rock_upper_bound should be default value of 20
+
+fog_lower_bound = 2
+
+fog_upper_bound = 30
+
+long_range_limit = 55

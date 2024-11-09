@@ -1,9 +1,11 @@
 #include <iostream>
+#include <stdexcept>
 #include <fstream>
 #include <algorithm>
 #include <cctype>
 #include <string>
 #include "Config.h"
+using namespace std;
 
 //default constructor
 Config::Config():
@@ -18,12 +20,11 @@ Config::Config():
 
 //constructor from a config file
 Config::Config(const char* path){
-    std::ifstream configFile(path);
+    ifstream configFile(path);
 
     //make sure file was opened 
     if(!configFile){
-        std::cerr << "Failed to open file." << std::endl;
-        exit(-1);
+        throw runtime_error("Failed to open file. ");
     }
 
     //sets default values (just in case it is omitted from config file)
@@ -36,30 +37,41 @@ Config::Config(const char* path){
     LongRangeLimit = 30;
 
     //parses the file line by line
-    std::string line;
-    while(std::getline(configFile, line)){
+    string line;
+    while(getline(configFile, line)){
+
         //skips line if empty or begins with "#"
         if(!line.empty() && line[0] == '#' ) continue;
+
             //locates index of = 
             int eq_index = line.find('=');
-            //TODO: Possible error checking if no = found
+            
+            //check that = was found (skip if not found)
+            if(eq_index == string::npos){
+                continue;
+            }
             
             //extracts the keyword from 0 to = index
-            std::string keywordStr = line.substr(0, eq_index);
+            string keywordStr = line.substr(0, eq_index);
 
-            //gets rid of spaces TODO: Remove or reformat?
-            keywordStr.erase(std::remove_if(keywordStr.begin(), keywordStr.end(),
-            [](unsigned char c) {return std::isspace(c);}), keywordStr.end());
+            //gets rid of spaces in keyword using a lambda function (see DEVELOPER.md for more info)
+            keywordStr.erase(remove_if(keywordStr.begin(), keywordStr.end(),
+            [](unsigned char c) {return isspace(c);}), keywordStr.end());
 
             //sets value to the remaining part of the string
-            std::string valueStr  = line.substr(eq_index + 1);
+            string valueStr  = line.substr(eq_index + 1);
 
-            //DITTO
-            valueStr.erase(std::remove_if(valueStr.begin(), valueStr.end(),
-            [](unsigned char c) {return std::isspace(c);}), valueStr.end());
+            //removes all spaces in the value string
+            valueStr.erase(remove_if(valueStr.begin(), valueStr.end(),
+            [](unsigned char c) {return isspace(c);}), valueStr.end());
 
-
-            int value = std::stoi(valueStr);
+            int value; 
+            //bug fix for invalid integer values 
+            try{
+                value = stoi(valueStr);
+            } catch(const invalid_argument& e){
+                cerr << "Invalid argument: " << e.what() << endl;
+            }
 
             //converts to C-style string (for use of strcmp)
             const char* keyword = keywordStr.c_str();
@@ -67,7 +79,7 @@ Config::Config(const char* path){
             if(strcasecmp(keyword, "hit_duration") == 0){
                 hitDuration = value;
             }
-            else if(strcasecmp(keyword, "paintbob_limit") == 0){
+            else if(strcasecmp(keyword, "paintblob_limit") == 0){
                 paintBlobLimit = value;
             }
             else if(strcasecmp(keyword, "rock_lower_bound") == 0){
@@ -87,6 +99,16 @@ Config::Config(const char* path){
             }
     }
 
+    //checks that rock upper + lower bound is valid
+    if(rockLowerBound > rockUpperBound){
+        cerr << "Invalid configuration -- cannot have rock lower bound > rock upper bound." << endl;
+        exit(-1);
+    }
+    //checks that fog upper + lower bound is valud
+    if(fogLowerBound > fogUpperBound){
+        cerr << "Invalid configuration -- cannot have fog lower bound > fog upper bound." << endl;
+        exit(-1);
+    }
 
     configFile.close();
 }

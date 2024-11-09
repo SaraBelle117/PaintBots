@@ -1,0 +1,13 @@
+#hit_duration should be default value of 20
+
+paintblob_limit = 10
+
+rock_lower_bound = 2
+
+rock_upper_bound = 10
+
+#fog_lower_bound should be default value of 5
+
+fog_upper_bound = 20
+
+long_range_limit = 20

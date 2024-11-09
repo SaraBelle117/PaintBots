@@ -1,0 +1,10 @@
+ROCK_UPPER_BOUND = 55
+PAINTBLOB_LIMIT = 5
+ROCK_LOWER_BOUND 
+FOG_LOWER_BOUND = 1
+#rock_lower_bound should be set to default val 
+ROCK_LOWER_BOUND
+HIT_DURATION = 2
+
+#fog_upper_bound should be set to default val 
+#long_range_limit should be set to default val

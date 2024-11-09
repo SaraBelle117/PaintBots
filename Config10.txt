@@ -1,0 +1,7 @@
+PAINTBLOB_LIMIT = 35
+Rock_Lower_Bound = 3
+rock_upper_bound = 25
+fog_lowEr_bound
+
+
+hit_duration = 45
