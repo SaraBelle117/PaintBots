@@ -1,28 +1,13 @@
-#include "BoardSquare.h"
 #pragma  once
+#include "BoardSquare.h"
 
-class InternalBoardSquare{
-    private:
-        Color int_color;
-        SquareType int_square;
-        Direction int_dir;
-        bool int_redRobot;
-        bool int_blueRobot;
+class InternalBoardSquare : public BoardSquare{
+
     public:
         //constructor
         InternalBoardSquare();
 
-        //getter methods
-        Color getSquareColor() const;
-        bool redRobotPresent() const;
-        bool blueRobotPresent() const;
-        Direction robotDirection() const;
-        SquareType getSquareType() const;
-        
-        //setter methods
-        void setSquareColor(Color col);
-        void setRedRobotPresent(bool p);
-        void setBlueRobotPresent(bool p);
-        void setRobotDirection(Direction dir);
-        void setSquareType(SquareType sq);
+        //specific constructor
+        InternalBoardSquare(Color col, SquareType sq, Direction dir, bool redRobot, bool blueRobot);
+    
 };
