@@ -31,7 +31,7 @@ class BoardSquare{
         //specific constructor
         BoardSquare(Color col, SquareType sq, Direction dir, bool redRobot, bool blueRobot);
 
-        //destructor
+        //virtual destructor
         virtual ~BoardSquare(){};
 
         //copy constructor
@@ -41,9 +41,23 @@ class BoardSquare{
         const BoardSquare & operator = (const BoardSquare & rhs);
 
         //getter methods
-        inline Color getSquareColor() const;
-        inline SquareType getSquareType() const;
-        inline Direction robotDirection() const;
-        inline bool redRobotPresent() const;
-        inline bool blueRobotPresent() const;
+        inline Color getSquareColor() const {
+            return b_color;
+        }
+
+        inline SquareType getSquareType() const {
+            return b_square;
+        }
+
+        inline Direction robotDirection() const {
+            return b_dir;
+        }
+
+        inline bool redRobotPresent() const {
+            return b_redRobot;
+        }
+
+        inline bool blueRobotPresent() const {
+            return b_blueRobot;
+        }
 };

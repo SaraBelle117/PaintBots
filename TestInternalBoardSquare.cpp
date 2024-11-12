@@ -4,8 +4,7 @@ using namespace std;
 
 void testGetSetColor()
 {
-    InternalBoardSquare square;
-    square.setSquareColor(RED);
+    InternalBoardSquare square(RED, EMPTY, NORTH, false, false);
 
     if(square.getSquareColor() == RED){
         cout << "Testing set color: PASS" << endl;
@@ -17,19 +16,18 @@ void testGetSetColor()
 
 void testRobotPresence()
 {
-    InternalBoardSquare square;
-    square.setRedRobotPresent(true);
+    InternalBoardSquare square2(WHITE, EMPTY, NORTH, true, false);
 
-    if(square.redRobotPresent() == true){
+    if(square2.redRobotPresent() == true){
         cout << "Testing set robot1: PASS" << endl;
     }
     else{
         cout << "Testing set robot1: FAIL" << endl;
     }
 
-    square.setRedRobotPresent(false);
+    InternalBoardSquare square3(RED, EMPTY, NORTH, false, false);
 
-    if(square.redRobotPresent() == false){
+    if(square3.redRobotPresent() == false){
         cout << "Testing set robot2: PASS" << endl;
     }
     else{
@@ -39,10 +37,9 @@ void testRobotPresence()
 
 void testDirection()
 {
-    InternalBoardSquare square;
-    square.setRobotDirection(SOUTH);
+    InternalBoardSquare square4(WHITE, EMPTY, SOUTH, false, false);
 
-    if(square.robotDirection() == SOUTH){
+    if(square4.robotDirection() == SOUTH){
         cout << "Testing set direction: PASS" << endl;
     }
     else{

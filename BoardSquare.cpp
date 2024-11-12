@@ -20,9 +20,6 @@ BoardSquare::BoardSquare(const BoardSquare & rhs):
     b_redRobot(rhs.b_redRobot), b_blueRobot(rhs.b_blueRobot)
     {}
 
-//virtual destructor
-BoardSquare:: ~BoardSquare(){};
-
 //operator =
 const BoardSquare & BoardSquare::operator = (const BoardSquare & rhs){
     //prevents self-assignment (don't want to override object with itself)
@@ -34,26 +31,6 @@ const BoardSquare & BoardSquare::operator = (const BoardSquare & rhs){
         b_blueRobot = rhs.b_blueRobot;
     }
     return *this;
-}
-
-Color BoardSquare::getSquareColor() const {
-    return b_color;
-}
-
-SquareType BoardSquare::getSquareType() const {
-    return b_square;
-}
-
-Direction BoardSquare::robotDirection() const {
-    return b_dir;
-}
-
-bool BoardSquare::redRobotPresent() const {
-    return b_redRobot;
-}
-
-bool BoardSquare::blueRobotPresent() const {
-    return b_blueRobot;
 }
 
 //sets the square color
