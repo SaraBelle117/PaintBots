@@ -7,4 +7,4 @@ testinternalboard: testInternalBoardSquare.cpp InternalBoardSquare.cpp
 	g++ -Wall -g -std=c++11 -o testinternalboard testInternalBoardSquare.cpp InternalBoardSquare.cpp
 
 clean:
-	rm -f display testconfig testinernalboard Config.o
+	rm -f display testconfig testinternalboard Config.o
