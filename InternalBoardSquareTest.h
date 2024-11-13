@@ -13,5 +13,6 @@ class InternalBoardSquareTest : public ITest {
         bool testSetColor();
         bool testRobotPresence();
         bool testDirection();
+        bool testBase();
 
 };

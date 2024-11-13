@@ -5,15 +5,12 @@ using namespace std;
 
 InternalBoardSquareTest::InternalBoardSquareTest() {}
 
-bool InternalBoardSquareTest::doTests(){
+bool InternalBoardSquareTest::doTests()
+{
 
     cout << "Testing InternalBoard class......." << endl;
-    bool t1, t2, t3;
-    t1 = testSetColor();
-    t2 = testRobotPresence();
-    t3 = testDirection();
 
-    return (t1 && t2 && t3);
+    return (testSetColor() && testRobotPresence() && testDirection() && testBase());
 }
 
 bool InternalBoardSquareTest::testSetColor()
@@ -69,7 +66,18 @@ bool InternalBoardSquareTest::testDirection()
         cout << "Testing set direction: FAIL" << endl;
         return false;
     }
+}
 
+bool InternalBoardSquareTest::testBase()
+{
+    if(std::is_base_of<BoardSquare, InternalBoardSquare>::value){
+        cout << "Testing base class: PASS" << endl;
+        return true;
+    }
+    else{
+        cout << "Testing base class: FAIL" << endl;
+        return false;
+    }
 }
 
 int main()
