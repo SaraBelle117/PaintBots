@@ -10,7 +10,7 @@ BoardSquare::BoardSquare():
     {}
 
 //specific constructor
-BoardSquare::BoardSquare(Color col, SquareType sq, Direction dir, bool redRobot, bool blueRobot):
+BoardSquare::BoardSquare(SquareColor col, SquareType sq, Direction dir, bool redRobot, bool blueRobot):
     b_color(col), b_square(sq), b_dir(dir), b_redRobot(redRobot), b_blueRobot(blueRobot)
     {}
 
@@ -34,7 +34,7 @@ const BoardSquare & BoardSquare::operator = (const BoardSquare & rhs){
 }
 
 //sets the square color
-void BoardSquare::setSquareColor(Color col){
+void BoardSquare::setSquareColor(SquareColor col){
     b_color = col;
 }
 

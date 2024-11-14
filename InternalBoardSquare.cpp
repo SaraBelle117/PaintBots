@@ -2,6 +2,6 @@
 
 InternalBoardSquare::InternalBoardSquare(): BoardSquare() {}
 
-InternalBoardSquare::InternalBoardSquare(Color col, SquareType sq, Direction dir, bool redRobot, bool blueRobot):
+InternalBoardSquare::InternalBoardSquare(SquareColor col, SquareType sq, Direction dir, bool redRobot, bool blueRobot):
     BoardSquare(col, sq, dir, redRobot, blueRobot){}
 

@@ -8,6 +8,6 @@ class InternalBoardSquare : public BoardSquare{
         InternalBoardSquare();
 
         //specific constructor
-        InternalBoardSquare(Color col, SquareType sq, Direction dir, bool redRobot, bool blueRobot);
+        InternalBoardSquare(SquareColor col, SquareType sq, Direction dir, bool redRobot, bool blueRobot);
     
 };

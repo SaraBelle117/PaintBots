@@ -4,18 +4,18 @@ enum Direction { NORTH, SOUTH, EAST, WEST};
 
 enum SquareType {EMPTY, ROCK, FOG, WALL};
 
-enum Color {RED, BLUE, WHITE};
+enum SquareColor {RED, BLUE, WHITE};
 
 class BoardSquare{
     private:
-        Color b_color;
+        SquareColor b_color;
         SquareType b_square;
         Direction b_dir;
         bool b_redRobot;
         bool b_blueRobot;
 
         //private setter methods
-        void setSquareColor(Color col);
+        void setSquareColor(SquareColor col);
         void setSquareType(SquareType sq);
         void setRobotDirection(Direction dir);
         void setRedRobotPresent(bool p);
@@ -29,7 +29,7 @@ class BoardSquare{
         BoardSquare();
 
         //specific constructor
-        BoardSquare(Color col, SquareType sq, Direction dir, bool redRobot, bool blueRobot);
+        BoardSquare(SquareColor col, SquareType sq, Direction dir, bool redRobot, bool blueRobot);
 
         //virtual destructor
         virtual ~BoardSquare(){};
@@ -41,7 +41,7 @@ class BoardSquare{
         const BoardSquare & operator = (const BoardSquare & rhs);
 
         //getter methods
-        inline Color getSquareColor() const {
+        inline SquareColor getSquareColor() const {
             return b_color;
         }
 
