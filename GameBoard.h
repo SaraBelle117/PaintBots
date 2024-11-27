@@ -50,6 +50,7 @@ class GameBoard : public Observable<GameBoard> {
         GameBoard(Config config);
 
         //helper methods
+
         //for blueScore() and redScore()
         int getScore(RobotColor col);
         //for setting walls on the GameBoard
@@ -69,15 +70,18 @@ class GameBoard : public Observable<GameBoard> {
     
     public:
         /**
-         * Destructor for the GameBoard
-         * TODO
+         * Destructor for the GameBoard -- ensures proper cleanup
          */
         ~GameBoard(){
-            //TODO
+            //clears the observers of the GameBoard
+            observers.clear();
+
+            //resets the Singleton instance
+            instance = nullptr;
         }
         
         /**
-         * TODO
+         * Notifies the observers about changing game states
          * @param GameBoard *data
          */
         void notifyObservers(ObservableData<GameBoard>* data) {
