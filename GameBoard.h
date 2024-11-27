@@ -1,4 +1,5 @@
 #pragma once
+#include "ObserverPattern.h"
 #include "InternalBoardSquare.h"
 #include "ExternalBoardSquare.h"
 #include "Config.h"
@@ -31,7 +32,7 @@ struct Robot
 };
 
 
-class GameBoard {
+class GameBoard : public Observable<GameBoard> {
     private:
         static GameBoard* instance;
         int row = 15;
@@ -67,6 +68,8 @@ class GameBoard {
 
     
     public:
+        virtual ~GameBoard();
+        //void
         static GameBoard* getInstance(string password);
         static GameBoard* getInstance(string password, Config config);
         InternalBoardSquare & getSquare(int row, int col);

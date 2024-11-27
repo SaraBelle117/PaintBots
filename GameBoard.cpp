@@ -401,7 +401,7 @@ Location GameBoard::find(RobotColor rc)
         for(int j = 0; j < col; j++){
             //checks that square contains robot desired
             InternalBoardSquare& sq = getSquare(i, j);
-            if((sq.redRobotPresent() && rc == XRED) || (sq.blueRobotPresent() && rc == XBLUE)){
+            if((sq.redRobotPresent() && rc == RobotColor::XRED) || (sq.blueRobotPresent() && rc == RobotColor::XBLUE)){
                 p.x  = i;
                 p.y = j;
                 return p;
