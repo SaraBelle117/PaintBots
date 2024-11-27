@@ -41,7 +41,6 @@ class GameBoard : public Observable<GameBoard> {
         Config config;
         Robot blue;
         Robot red;
-        int numFogSquares;
 
         //default constructor
         GameBoard();
@@ -65,15 +64,26 @@ class GameBoard : public Observable<GameBoard> {
         Location getNextPosition(Location point, Direction dir);
         //checks that we are still within the bounds of the board
         bool checkBounds(int x, int y);
-        
+        //set fog squares
+        void randomizeFogs();
+        //notifies square color change
+        void notifySquareColorChange(int x, int y, SquareColor col);   
+        //notifies robot move change
+        void notifyRobotMove(const RobotMoveRequest& mr);
+        //notifies score update change
+        void notifyScoreUpdate(int score);
 
-    
     public:
         /**
          * Destructor for the GameBoard -- ensures proper cleanup
          */
-        ~GameBoard(){
+        ~GameBoard()
+        {
             //clears the observers of the GameBoard
+            for(auto* observer : observers){
+                delete observer;
+            }
+            //clears the vector
             observers.clear();
 
             //resets the Singleton instance
@@ -81,11 +91,13 @@ class GameBoard : public Observable<GameBoard> {
         }
         
         /**
-         * Notifies the observers about changing game states
+         * Notifies the observers about changing game states 
+         * for ObservableData<GameBoard>
          * @param GameBoard *data
          */
-        void notifyObservers(ObservableData<GameBoard>* data) {
-            for(Observer<GameBoard, ObservableData<GameBoard>> *observer : observers){
+        virtual void notifyObservers(ObservableData<GameBoard>* data) override
+        {   
+            for(Observer<GameBoard> *observer : observers){
                 observer->update(data);
             }
         }
@@ -93,7 +105,7 @@ class GameBoard : public Observable<GameBoard> {
         static GameBoard* getInstance(string password);
         static GameBoard* getInstance(string password, Config config);
         InternalBoardSquare & getSquare(int row, int col);
-        bool moveRobot(RobotMoveRequest & mr );
+        bool moveRobot(RobotMoveRequest & mr);
         bool PaintBlobHit(RobotMoveRequest & mr);
         int blueScore();
         int redScore();

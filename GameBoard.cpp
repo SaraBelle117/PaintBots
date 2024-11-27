@@ -1,4 +1,5 @@
 #include "GameBoard.h"
+#include "PlainDisplay.h"
 #include <iostream>
 using namespace std;
 
@@ -10,9 +11,6 @@ GameBoard* GameBoard::instance = nullptr;
  */
 GameBoard::GameBoard() : board(row, vector<InternalBoardSquare>(col))
 {
-    //creates a default game configuration
-    //Config config;
-
     //populates boarder of the GameBoard with WALL BoardSquares
     setWalls();
 
@@ -22,8 +20,11 @@ GameBoard::GameBoard() : board(row, vector<InternalBoardSquare>(col))
     //sets robots on the GameBoard
     setRobots();
 
-    //sets (randomized) number of fog squares from default config (between 5 - 10)
-    numFogSquares = RAND_IN_RANGE(config.getFogLowerBound(), config.getFogUpperBound());
+    //sets the fog squares on the GameBoard
+    randomizeFogs();
+
+    //registers display as an observer
+    registerObserver(new PlainDisplay(this));
 }
 
 /**
@@ -41,8 +42,65 @@ GameBoard::GameBoard(Config config): board(row, vector<InternalBoardSquare>(col)
     //sets robots on the GameBoard
     setRobots();
 
-    //sets (randomized) number of fog squares from default config (between 5 - 10)
-    numFogSquares = RAND_IN_RANGE(config.getFogLowerBound(), config.getFogUpperBound());
+    //sets the fog squares on the GameBoard
+    randomizeFogs();
+
+    //registers display as an observer
+    registerObserver(new PlainDisplay(this));
+}
+
+/**
+ * Notifies observers about the SquareColor Change
+ * @param int x
+ * @param int y
+ * @param SquareColor col
+ */
+void GameBoard::notifySquareColorChange(int x, int y, SquareColor col)
+{   
+    //creates the union data
+    ObservableData<GameBoard>::Data data;
+    data.SquareColorData = {x, y, col};
+
+    //creates the ObservableData type
+    ObservableData<GameBoard> event(SQUARE_COLOR, data);
+
+    //notifies the observers
+    notifyObservers(&event);
+}
+
+/**
+ * Notifies the observers about the Robot move change
+ * @param Robot rb
+ * @param Direction dir
+ */
+void GameBoard::notifyRobotMove(const RobotMoveRequest& mr)
+{
+    //creates the union data
+    ObservableData<GameBoard>:: Data data;
+    data.robotMoveData = {mr};
+
+    //creates the ObservableData type
+    ObservableData<GameBoard> event(ROBOT_MOVE, data);
+
+    //notifies the observers
+    notifyObservers(&event);
+}
+
+/**
+ * Notifies the observers about the score change
+ * @param int score
+ */
+void GameBoard::notifyScoreUpdate(int score)
+{
+    //creates the union data
+    ObservableData<GameBoard>:: Data data;
+    data.scoreUpdateData = {score};
+
+    //creates the ObservableData type
+    ObservableData<GameBoard> event(SCORE_UPDATE, data);
+
+    //notifies the observers
+    notifyObservers(&event);
 }
 
 /**
@@ -124,6 +182,30 @@ void GameBoard::setRocks(Config config)
 }
 
 /**
+ * Sets the fog squares for the game (also used to update fog squares randomly)
+ */
+void GameBoard::randomizeFogs()
+{
+    //chooses a random value between the bounds (given by the config)
+    int numFogs = RAND_IN_RANGE(config.getFogLowerBound(), config.getFogUpperBound());
+
+    //adds that number of fog squares to valid points on the board
+    for(int i = 0; i < numFogs; i++){
+        //initialize to zero 
+        int x = 0, y = 0;
+
+        //generates a rand num until it finds a valid square
+        while(board[x][y].getSquareType() != EMPTY || board[x][y].redRobotPresent() || board[x][y].blueRobotPresent()){
+            //ensures x & y is a random number between 1 - 13
+            x = RAND_IN_RANGE(1, 13);
+            y = RAND_IN_RANGE(1, 13);
+        }
+        //sets fog square at valid point found
+        board[x][y].applySquareType(FOG);
+    }
+}
+
+/**
  * Helper function to set robots on the GameBoard
  */
 void GameBoard::setRobots()
@@ -169,6 +251,7 @@ InternalBoardSquare & GameBoard::getSquare(int row, int col)
  */
 bool GameBoard::moveRobot(RobotMoveRequest & mr)
 {
+    
     Location pos;
     //identifies the given robots position on the board
     pos = find(mr.robot);
@@ -213,9 +296,12 @@ bool GameBoard::moveRobot(RobotMoveRequest & mr)
             board[newPos.x][newPos.y].applyBlueRobotPresent(true);
         }
     }
+    //shoots a paintblob
     if(mr.shoot){
         PaintBlobHit(mr);
     }
+    //notifies the observers about the successful move made on the GameBoard
+    notifyRobotMove(mr);
 
     return true;
 }
@@ -252,10 +338,14 @@ bool GameBoard::PaintBlobHit(RobotMoveRequest & mr)
             if(mr.robot == XRED){
                 red.paintblobs++;
                 setRobotPaintColor(mr.robot, RED);
+                //notifies Observers of SquareColor Change
+                notifySquareColorChange(pos.x, pos.y, RED);
             } 
             if(mr.robot == XBLUE){
                 blue.paintblobs++;
                 setRobotPaintColor(mr.robot, BLUE);
+                //notifies Observers of SquareColor Change
+                notifySquareColorChange(pos.x, pos.y, BLUE);
             }
             return true;
         }
@@ -326,6 +416,8 @@ void GameBoard::setSquareColor(int x, int y, SquareColor sc)
         //throws error if row and col are now valid
         throw out_of_range("Invalid square index.");
     }
+    //updates the observers
+    notifySquareColorChange(x, y, sc);
 }
 
 /**
@@ -369,7 +461,14 @@ ExternalBoardSquare** GameBoard::getLongRangeScan()
 ExternalBoardSquare** GameBoard::getShortRangeScan(RobotColor rc)
 {   
     //locates the given robot's position on the board
-    Location point = find(rc);
+    Location point = find(rc);  
+
+    bool fogSquare = false;
+    InternalBoardSquare checkFog = getSquare(point.x, point.y);
+    //checks if the square is a fog square
+    if(checkFog.getSquareType()== FOG){
+        fogSquare = true;
+    }
 
     //Allocates a 5x5 array
     ExternalBoardSquare** shortboard = new ExternalBoardSquare*[5];
@@ -385,14 +484,26 @@ ExternalBoardSquare** GameBoard::getShortRangeScan(RobotColor rc)
             int board_y = (point.y - 2) + j;
 
             //checks we are within bounds of the GameBoard
-            if(checkBounds(board_x, board_y)){
+            if(checkBounds(board_x, board_y) && !fogSquare){
                 shortboard[i][j] = ExternalBoardSquare(board[board_x][board_y]);
             }
-            else{
+            else if(!fogSquare){
                 //if not within bounds, set the BoardSquare as WALL
                 shortboard[i][j] = ExternalBoardSquare(wallSq);
             }
+            else{
+                //if we are a fog square, all squares should be empty (unless center)
+                InternalBoardSquare empty;
+                empty.applySquareType(EMPTY);
+                shortboard[i][j] = ExternalBoardSquare(empty);
+            }
         }
+    }
+    //if the robot is on a Fog square, then the center square should be a fog square
+    if(fogSquare){
+        InternalBoardSquare fog;
+        fog.applySquareType(FOG);
+        shortboard[2][2] = ExternalBoardSquare(fog);
     }
     return shortboard;
 }
