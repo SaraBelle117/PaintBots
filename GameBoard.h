@@ -68,8 +68,24 @@ class GameBoard : public Observable<GameBoard> {
 
     
     public:
-        virtual ~GameBoard();
-        //void
+        /**
+         * Destructor for the GameBoard
+         * TODO
+         */
+        ~GameBoard(){
+            //TODO
+        }
+        
+        /**
+         * TODO
+         * @param GameBoard *data
+         */
+        void notifyObservers(ObservableData<GameBoard>* data) {
+            for(Observer<GameBoard, ObservableData<GameBoard>> *observer : observers){
+                observer->update(data);
+            }
+        }
+
         static GameBoard* getInstance(string password);
         static GameBoard* getInstance(string password, Config config);
         InternalBoardSquare & getSquare(int row, int col);
@@ -81,5 +97,6 @@ class GameBoard : public Observable<GameBoard> {
         void setRobotPaintColor(RobotColor robot, SquareColor sc);
         ExternalBoardSquare** getLongRangeScan();
         ExternalBoardSquare** getShortRangeScan(RobotColor rc);
+
 
 };

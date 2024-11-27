@@ -5,6 +5,9 @@ using namespace std;
 //initializes the gameboard to a null pointer
 GameBoard* GameBoard::instance = nullptr;
 
+/**
+ * Constructs the GameBoard with the default configuration values
+ */
 GameBoard::GameBoard() : board(row, vector<InternalBoardSquare>(col))
 {
     //creates a default game configuration
@@ -23,6 +26,10 @@ GameBoard::GameBoard() : board(row, vector<InternalBoardSquare>(col))
     numFogSquares = RAND_IN_RANGE(config.getFogLowerBound(), config.getFogUpperBound());
 }
 
+/**
+ * Constructs a GameBoard using the specific configuration given
+ * @param Config 
+ */
 GameBoard::GameBoard(Config config): board(row, vector<InternalBoardSquare>(col))
 {
     //populates boarder of the GameBoard with WALL BoardSquares
@@ -56,6 +63,7 @@ GameBoard* GameBoard::getInstance(string password)
 
     return instance;
 }
+
 /**
  * Returns the instance of the GameBoard with the given config
  * @param string password (xyzzzy)
