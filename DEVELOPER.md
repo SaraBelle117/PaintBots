@@ -16,9 +16,15 @@ This project is a robot game called "PaintBots" (with the rules included in the 
 ## Project Structure
 The board for the game is made up of 15 x 15 "board squares", and the internalboard cannot be viewed from the 
 externalboard. 
+- InternalBoardSquare: represents the tru (hidden) game state, and tracks the changes of the game.
+- ExternalBoardSquare: represents what the player/observers of the game can see (visible state), and it updates notifications based on the InternalBoard 
+- GameBoard: implemented using the Observer Pattern, with the following breakdown:
+Observable: GameBoard (also utilizing the Singleton Pattern, as we have only one instance of the GameBoard)
+Observers: PlainDisplay, with future observers TBD (likely a ScoreBoard, and Robot Observers)
+ObservableData: there are three notable changes in the game state -- when the score changes, when the robot moves, and when a square changes color. 
+NOTE: I am not 100% certain why we are failing to update the change in SquareType, such as when we randomize the fog squares on the board. Will be asking in Piazza to clarify. 
+- PlainDisplay: this is our observer for the GameBoard, and it shows the GameBoard, represented 
 
-## Setup for Development
-To run the file, type "make", and then type "./testconfig" in your given compiler.
 
 ## Challenges Encountered
 Setting up the first few files (the internal & external boards squares) was relatively straightforward due to the
@@ -45,3 +51,11 @@ methods in C++ I haven't used before).
 ## Testing
 I created 10 test configuration files for my project, and also opted to make a "testinternalboardsquare" file since
 this was my first time programming in C++, so I wanted to make sure everything worked as I expected it to. 
+
+Essentially, each file for the program has a test file as follows:
+- ConfigTest
+- BoardSquareTest
+- InternalBoardSquareTest
+- ExternalBoardSquareTest
+- GameBoardTest
+

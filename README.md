@@ -30,3 +30,24 @@ Additional game rules:
 - If a robot is in a foq square, the 5 x 5 square returned by the local scan consists of all empty squares except for the center square (which indicates fog).
 - A robot's control algorithm may also recieve a limited number of long-range scans which give the contents of the entire 15 x 15 board. A long-range scan is available on any move, but the number of scans is limited and specified by configuration file (default is 30).
 - At the beginning of the game, rocks are placed randomly on the board, and robots are also placed randomly on the board. Robots are not placed so they start in a fog square.
+
+## Observer Pattern & Singleton Pattern
+This project uses the Observer Pattern to notify the various observers of the Observable GameBoard. The current implementation has the PlainDisplay registered as an observer, and I expect us to add the score of the game, and robots as observers in the future. The GameBoard is also an implementation of the Singleton Pattern. 
+
+## Running the Program
+To run the test files, type "make", and you can run each test as follows:
+
+./ConfigTest
+./InternalBoardSquareTest
+./ExternalBoardSquareTest
+./BoardSquareTest
+./GameBoardTest
+
+## Display of the Game
+PlainDisplay shows the 15 x 15 GameBoard with the following rules. 
+- if the Square is a WALL, it will be represented as "WWWW"
+- otherwise, it is implemented as follows, with each number being the letter (each square is 4 chars):
+    1. The first letter represents the square color (R, B, or W)
+    2. The second letter represents if a robot is present (R, B, or -)
+    3. The third letter represents if a rock sqwuare is present (X, or -)
+    4. The third letter represents if a fog square is present (X, or -)
