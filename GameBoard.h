@@ -9,7 +9,8 @@ using namespace std;
 
 #define RAND_IN_RANGE(min, max) ((min) + rand() % ((max) - (min) + 1))
 
-enum RobotColor{RED, BLUE};
+//changed to XRED and XBLUE per the announcement 
+enum RobotColor{XRED, XBLUE};
 
 enum RobotMove{ROTATELEFT, ROTATERIGHT, FORWARD, NONE};
 
@@ -33,8 +34,8 @@ struct Robot
 class GameBoard {
     private:
         static GameBoard* instance;
-        int row; // = 15;
-        int col; // = 15;
+        int row = 15;
+        int col = 15;
         vector<vector<InternalBoardSquare>> board;
         Config config;
         Robot blue;
@@ -60,7 +61,8 @@ class GameBoard {
         Location find(RobotColor rc);
         //identifies the next position (given direction)
         Location getNextPosition(Location point, Direction dir);
-        
+        //checks that we are still within the bounds of the board
+        bool checkBounds(int x, int y);
         
 
     

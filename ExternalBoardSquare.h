@@ -5,6 +5,8 @@
 class ExternalBoardSquare : public BoardSquare{
         
     public:
+        //default constructor
+        ExternalBoardSquare();
         //constructor
         ExternalBoardSquare(const InternalBoardSquare& internalSquare);
 

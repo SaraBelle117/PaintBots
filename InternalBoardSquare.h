@@ -30,19 +30,6 @@ class InternalBoardSquare : public BoardSquare{
             setRobotDirection(dir);
         }
 
-        //sets robot based on color given
-        void setRobot(RobotColor col, bool present)
-        {
-            switch(col){
-                case BLUE:
-                    setBlueRobotPresent(present);
-                    break;
-                case RED:
-                    setRedRobotPresent(present);
-                    break;
-            }
-        }
-
         //sets RedRobotPresent
         void applyRedRobotPresent(bool p)
         {
