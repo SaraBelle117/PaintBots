@@ -104,6 +104,40 @@ void GameBoard::notifyScoreUpdate(int score)
 }
 
 /**
+ * Frees the memory used for LongRangeScan() and ShortRangeScan()
+ * @param ExternalBoardSquare** list
+ * @param int size of the given list (15x15 for long, 5x5 for short)
+ */
+void GameBoard::freeScan(ExternalBoardSquare** list, int size)
+{  
+    //checks that the list is not null
+    if(list){
+        for(int i = 0; i < size; i++){
+            //deletes the element in the list
+            delete[] list[i];
+        }
+        //deletes the list
+        delete[] list;
+    }
+}
+
+/***
+ * Resets the board to it's original state
+ */
+void GameBoard::reset()
+{
+    //resets the board
+    board.clear();
+    board.resize(row, vector<InternalBoardSquare>(col));
+
+    //reinitialize the game pieces
+    setWalls();
+    setRocks(config);
+    setRobots();
+    randomizeFogs();
+}
+
+/**
  * Returns the instance of the GameBoard (Singleton Pattern)
  * @param string password (xyzzzy)
  * @return instance of the GameBoard
@@ -170,11 +204,18 @@ void GameBoard::setRocks(Config config)
     for(int i = 0; i < numRocks; i++){
         //for positions of the board we are adding rocks to
         int x = 0, y = 0;
+        //fixes issues with infinite loops
+        int attempts = 0;
         //generates a rand num until it finds an empty square (with no blue or red robot present)
         while(board[x][y].getSquareType() != EMPTY || board[x][y].redRobotPresent() || board[x][y].blueRobotPresent()){
             //ensures x & y is a random number between 1 - 13
             x = RAND_IN_RANGE(1, 13);
-            y = RAND_IN_RANGE(1, 13);            
+            y = RAND_IN_RANGE(1, 13); 
+
+            attempts++;
+            if(attempts > 100){
+                throw runtime_error("Too many rocks to place on the board, double check config");
+            }
         }
         //sets SquareType at x, y
         board[x][y].applySquareType(ROCK);
@@ -194,14 +235,28 @@ void GameBoard::randomizeFogs()
         //initialize to zero 
         int x = 0, y = 0;
 
+        //fixes infinite loop issue
+        int attempts = 0;
+
         //generates a rand num until it finds a valid square
-        while(board[x][y].getSquareType() != EMPTY || board[x][y].redRobotPresent() || board[x][y].blueRobotPresent()){
+        while(board[x][y].getSquareType() == WALL || board[x][y].redRobotPresent() || board[x][y].blueRobotPresent()){
             //ensures x & y is a random number between 1 - 13
             x = RAND_IN_RANGE(1, 13);
             y = RAND_IN_RANGE(1, 13);
+
+            attempts++;
+            if(attempts > 1000){
+                throw runtime_error("Unable to add fog squares");
+            }
         }
-        //sets fog square at valid point found
-        board[x][y].applySquareType(FOG);
+        //sets fog square at valid point found (edited to allow rock and fog to share a square)
+        if(board[x][y].getSquareType() == ROCK){
+            board[x][y].applySquareType(FOGANDROCK);
+        }
+        else{
+            board[x][y].applySquareType(FOG);
+        }
+
     }
 }
 
@@ -221,9 +276,11 @@ void GameBoard::setRobots()
         }
         if(rc == XRED){
             board[x][y].applyRedRobotPresent(true);
+            setRobotPaintColor(XRED, RED);
         }
         else{
             board[x][y].applyBlueRobotPresent(true);
+            setRobotPaintColor(XBLUE, BLUE);
         }
     }
 }
@@ -248,19 +305,17 @@ InternalBoardSquare & GameBoard::getSquare(int row, int col)
 
 /**
  * Performs the request move on the designated robot
+ * @param RobotMoveRequest & mr
+ * @return bool (true if successful, false otherwise)
  */
 bool GameBoard::moveRobot(RobotMoveRequest & mr)
 {
-    
-    Location pos;
     //identifies the given robots position on the board
-    pos = find(mr.robot);
-    
-    InternalBoardSquare sq = getSquare(pos.x, pos.y);
+    Location pos = find(mr.robot);
 
     if(mr.move == ROTATELEFT || mr.move == ROTATERIGHT){
         Direction newDir;
-        switch(sq.robotDirection()){
+        switch(board[pos.x][pos.y].robotDirection()){
             case NORTH:
                 if(mr.move == ROTATELEFT) newDir = WEST;
                 if(mr.move == ROTATERIGHT) newDir = EAST;
@@ -278,22 +333,23 @@ bool GameBoard::moveRobot(RobotMoveRequest & mr)
                 if(mr.move == ROTATERIGHT) newDir = WEST;
                 break;
         }
-         sq.applyRobotDirection(newDir);
+        //applies the new direction
+         board[pos.x][pos.y].applyRobotDirection(newDir);
     }
     else if(mr.move == FORWARD){
         //sets the new position of the Robot
-        Location newPos = getNextPosition(pos, sq.robotDirection());
+        Location newPos = getNextPosition(pos, board[pos.x][pos.y].robotDirection());
 
         //sets the old square (the one we are moving from) as the Robot's color
         if(mr.robot == XRED){
-            setSquareColor(pos.x, pos.y, red.paintcolor);
-            sq.applyRedRobotPresent(false);
+            board[pos.x][pos.y].applyRedRobotPresent(false);
             board[newPos.x][newPos.y].applyRedRobotPresent(true);
+            setSquareColor(pos.x, pos.y, red.paintcolor);
         }
         else{
-            setSquareColor(pos.x, pos.y, blue.paintcolor);
-            sq.applyBlueRobotPresent(false);
+            board[pos.x][pos.y].applyBlueRobotPresent(false);
             board[newPos.x][newPos.y].applyBlueRobotPresent(true);
+            setSquareColor(pos.x, pos.y, blue.paintcolor);
         }
     }
     //shoots a paintblob
@@ -309,6 +365,8 @@ bool GameBoard::moveRobot(RobotMoveRequest & mr)
 /**
  * Indicates if the PaintBlob (of the given robot) hits the
  * other or not
+ * @param RobotMoveRequest & mr
+ * @return bool (true if successful hit, otherwise false)
  */
 bool GameBoard::PaintBlobHit(RobotMoveRequest & mr)
 {   
@@ -511,19 +569,22 @@ ExternalBoardSquare** GameBoard::getShortRangeScan(RobotColor rc)
 /**
  * Helper method to return the given location (int x, int y)
  * with the given robot color
+ * @param RobotColor rc
+ * @return Location point
  * @throws runtime_error if no robot found
  */
 Location GameBoard::find(RobotColor rc)
 {
     Location p;
-    for(int i = 0; i < row; i++){
-        for(int j = 0; j < col; j++){
+    //iterates through the board until the given robot is found
+    for(int i = 0; i < 15; i++){
+        for(int j = 0; j < 15; j++){
             //checks that square contains robot desired
             InternalBoardSquare& sq = getSquare(i, j);
-            if((sq.redRobotPresent() && rc == RobotColor::XRED) || (sq.blueRobotPresent() && rc == RobotColor::XBLUE)){
+            if((sq.redRobotPresent() && rc == XRED) || (sq.blueRobotPresent() && rc == XBLUE)){
                 p.x  = i;
                 p.y = j;
-                return p;
+                return p; 
             }
         }
     }
@@ -534,24 +595,28 @@ Location GameBoard::find(RobotColor rc)
 /**
  * Returns the location of the next position in the GameBoard
  * (given Direction)
- * 
+ * @param Location point (current)
+ * @param Direction dir
+ * @return Location of the next point on the board (or the same point
+ * if the point is invalid)
  */
 Location GameBoard::getNextPosition(Location point, Direction dir){
     switch(dir){
-        case NORTH:
-            point.y--;
+        case NORTH: //move up
+            point.y--; 
             return point;
-        case EAST:
+        case EAST:  //move right
             point.x++;
             return point;
-        case SOUTH:
+        case SOUTH: //move down
             point.y++;
             return point;
-        case WEST:
+        case WEST: //move left
             point.x--;
             return point;
     }
-    //if the direction is invalid, just return the same point
+    //if the direction is invalid, just return the same point (this is a placeholder for future logic
+    //since in Part B, the robotMove() function must always return true.
     return point;
 }
 
@@ -563,5 +628,5 @@ Location GameBoard::getNextPosition(Location point, Direction dir){
  */
 bool GameBoard::checkBounds(int x, int y)
 {
-    return (x >= 0 && x < row && y >= 0 && y < col);
+    return (x >= 0 && x < 15 && y >= 0 && y < 15);
 }

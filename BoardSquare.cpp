@@ -53,7 +53,6 @@ void BoardSquare::setRedRobotPresent(bool p){
     b_redRobot = p;
 }
 
-
 //sets blue robot
 void BoardSquare::setBlueRobotPresent(bool p){
     b_blueRobot = p;

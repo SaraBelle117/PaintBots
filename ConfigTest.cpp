@@ -5,12 +5,9 @@ using namespace std;
 ConfigTest::ConfigTest(){}
 
 bool ConfigTest::doTests(){
-    bool t1, t2;
     cout << "Testing Config class......." << endl;
-    t1 = testDefaultConstructor();
-    t2 = testConstructor();
 
-    return (t1 && t2);
+    return (testDefaultConstructor() && testConstructor());
 
 }
 

@@ -12,7 +12,8 @@ bool GameBoardTest::doTests()
 {
     cout << "Testing GameBoard class......." << endl;
 
-    return (testInstance() && testGetSquare() && testMoveRobot() && testScores() && testGetLongRangeScan() && testGetShortRangeScan());
+    return (testInstance() && testGetSquare() && testScores() && testGetLongRangeScan()
+    && testGetShortRangeScan() && testMoveRobot());
 
 }
 
@@ -87,13 +88,40 @@ bool GameBoardTest::testGetSquare()
 bool GameBoardTest::testMoveRobot()
 {
     GameBoard* gb4 = GameBoard::getInstance("xyzzy");
+
     //make sure we have a game instance before continuing
     if(gb4 == nullptr){
         cerr << "GameBoard instance could not be created." << endl;
         return false;
     }
 
-    return true;
+    gb4->reset();
+    cout << "Resetting board..." << endl;
+
+    Location p;
+
+    p = gb4->find(XRED);
+
+    InternalBoardSquare sq = gb4->getSquare(p.x, p.y);
+    //sq.applyRobotDirection(SOUTH);
+    RobotMoveRequest mr = {XRED, FORWARD, false};
+    bool move = false;
+
+    move = gb4->moveRobot(mr);
+    move = gb4->moveRobot(mr);
+    move = gb4->moveRobot(mr);
+
+    mr.robot = XBLUE;
+    move = gb4->moveRobot(mr);
+
+    if(move){
+        cout << "Test moveRobot(): PASSED" <<endl;
+        return true;
+    }
+    else{
+        cout << "Test moveRobot(): FAILED" <<endl;
+        return false;
+    }
 }
 
 bool GameBoardTest::testScores()
@@ -104,6 +132,8 @@ bool GameBoardTest::testScores()
         cerr << "GameBoard instance could not be created." << endl;
         return false;
     }
+
+    //sets all square colors as red
     for(int i = 0; i < 15; i++){
         for(int j = 0; j < 15; j++){
             gb7->setSquareColor(i, j, RED);
@@ -114,9 +144,17 @@ bool GameBoardTest::testScores()
         return false;
     }
 
+    //sets all square colors as white (resets)
+    for(int i = 0; i < 15; i++){
+        for(int j = 0; j < 15; j++){
+            gb7->setSquareColor(i, j, WHITE);
+        }
+    }
+
     cout << "Test scores(): PASSED" << endl;
     return true;
 }
+
 
 bool GameBoardTest::testGetLongRangeScan()
 {
@@ -140,6 +178,9 @@ bool GameBoardTest::testGetLongRangeScan()
     }
     cout << "Test getLongRangeScan(): PASSED" << endl;
 
+    //deletes the list since we are now done using it 
+    gb5->freeScan(grid, 15);
+
     return true;
 }
 
@@ -152,14 +193,21 @@ bool GameBoardTest::testGetShortRangeScan()
         return false;
     }
 
-    gb6->setRobotPaintColor(XRED, RED);
-    gb6->setSquareColor(7, 7, WHITE);
+    gb6->setSquareColor(3, 3, BLUE);
+    gb6->setSquareColor(2, 2, BLUE);
 
-    ExternalBoardSquare** grid = gb6->getShortRangeScan(XRED);
-    if(grid[2][2].getSquareType() != EMPTY || grid[2][2].getSquareColor() != WHITE){
+
+    ExternalBoardSquare** grid = gb6->getShortRangeScan(XBLUE);
+    InternalBoardSquare sq = gb6->getSquare(2, 2);
+    InternalBoardSquare sq2 = gb6->getSquare(3, 3);
+    if(sq.getSquareColor() != BLUE || sq2.getSquareColor() != BLUE){
         cout << "Test getShortRangeScan(): FAILED" << endl;
+    
         return false;
     }
+    
+    //deletes the array we allocated, since we are done using it 
+    gb6->freeScan(grid, 5);
 
     return true;
 }

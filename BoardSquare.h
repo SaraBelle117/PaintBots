@@ -2,9 +2,15 @@
 
 enum Direction { NORTH, SOUTH, EAST, WEST};
 
-enum SquareType {EMPTY, ROCK, FOG, WALL};
+enum SquareType {EMPTY, ROCK, FOG, WALL, FOGANDROCK};
 
 enum SquareColor {RED, BLUE, WHITE};
+
+//for tracking BoardSquare's location (and more)
+struct Location{
+    int x; 
+    int y;
+};
 
 class BoardSquare{
     private:
@@ -13,6 +19,9 @@ class BoardSquare{
         Direction b_dir;
         bool b_redRobot;
         bool b_blueRobot;
+        
+        //friend class so it can access the private set methods
+        friend class InternalBoardSquare;
 
         //private setter methods
         void setSquareColor(SquareColor col);
@@ -20,9 +29,6 @@ class BoardSquare{
         void setRobotDirection(Direction dir);
         void setRedRobotPresent(bool p);
         void setBlueRobotPresent(bool p);
-
-        //friend class so it can access the private set methods
-        friend class InternalBoardSquare;
 
     public:
         //default constructor
@@ -60,4 +66,5 @@ class BoardSquare{
         inline bool blueRobotPresent() const {
             return b_blueRobot;
         }
+
 };
