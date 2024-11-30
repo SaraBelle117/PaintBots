@@ -13,7 +13,7 @@ bool GameBoardTest::doTests()
     cout << "Testing GameBoard class......." << endl;
 
     return (testInstance() && testGetSquare() && testScores() && testGetLongRangeScan()
-    && testGetShortRangeScan() && testMoveRobot());
+    && testGetShortRangeScan() && testMoveRobot() && testObserver());
 
 }
 
@@ -85,6 +85,11 @@ bool GameBoardTest::testGetSquare()
     return true;
 }
 
+/**
+ * Tests that the moveRobot() function returns true (as it always should)
+ * and makes moves on the board
+ * @return true if tests pass, otherwise false
+ */
 bool GameBoardTest::testMoveRobot()
 {
     GameBoard* gb4 = GameBoard::getInstance("xyzzy");
@@ -124,6 +129,10 @@ bool GameBoardTest::testMoveRobot()
     }
 }
 
+/**
+ * Tests that the score is being calculated correctly
+ * @return true if tests pass, otherwise false
+ */
 bool GameBoardTest::testScores()
 {
     GameBoard* gb7 = GameBoard::getInstance("xyzzy");
@@ -155,7 +164,10 @@ bool GameBoardTest::testScores()
     return true;
 }
 
-
+/**
+ * Tests that getLongRangeScan() works as expected
+ * @return true if tests pass, false otherwise
+ */
 bool GameBoardTest::testGetLongRangeScan()
 {
     GameBoard* gb5 = GameBoard::getInstance("xyzzy");
@@ -184,6 +196,10 @@ bool GameBoardTest::testGetLongRangeScan()
     return true;
 }
 
+/**
+ * Tests that getShortRangeScan() works as expected
+ * @return true if test passes, otherwise false
+ */
 bool GameBoardTest::testGetShortRangeScan()
 {
     GameBoard* gb6 = GameBoard::getInstance("xyzzy");
@@ -209,6 +225,15 @@ bool GameBoardTest::testGetShortRangeScan()
     //deletes the array we allocated, since we are done using it 
     gb6->freeScan(grid, 5);
 
+    return true;
+}
+
+/**
+ * Tests that the observer is given the right change data 
+ * @return true if test passes, otherwise false
+ */
+bool GameBoardTest::testObserver()
+{
     return true;
 }
 

@@ -22,7 +22,10 @@ void PlainDisplay::display(){
 
             //Wall squares always WWWW
             if(sq.getSquareType() == WALL){
+                //makes walls purple
+                square += "\033[35m";
                 square += "WWWW";
+                square += "\033[0m";
             }
             else{
             //sets first letter = R - red, B - blue, W - white
@@ -36,7 +39,7 @@ void PlainDisplay::display(){
                         break;
                     case BLUE:
                         //makes the square blue
-                        square += "\033[34m";
+                        square += "\033[36m";
                         square += "B";
                         //resets to the default color
                         square += "\033[0m";
@@ -48,15 +51,15 @@ void PlainDisplay::display(){
 
             //sets second letter (R if red robot, B if blue robot, - if neither)
                 if(sq.redRobotPresent()){
-                        //makes the square red
-                        square += "\033[31m";
+                        //makes the square bold & red
+                        square += "\033[1;31m";
                         square += "R";
                         //resets to the default color
                         square += "\033[0m";
                 }
                 else if(sq.blueRobotPresent()){
-                        //makes the square blue
-                        square += "\033[34m";
+                        //makes the square bold & blue
+                        square += "\033[1;34m";
                         square += "B";
                         //resets to the default color
                         square += "\033[0m";
@@ -66,16 +69,24 @@ void PlainDisplay::display(){
                 }
 
             //sets third letter (X if rock present, - otherwise)
-                if(sq.getSquareType() == ROCK){
+                if(sq.getSquareType() == ROCK || sq.getSquareType() == FOGANDROCK){
+                    //green == rock squares
+                    square += "\033[32m";
                     square += "X";
+                    //resets color
+                    square += "\033[0m";
                 }
                 else{
                     square += "-";
                 }
 
                 //sets fourth letter (X if fog present, - otherwise)
-                if(sq.getSquareType() == FOG){
+                if(sq.getSquareType() == FOG || sq.getSquareType() == FOGANDROCK){
+                    //yellow == fog squares
+                    square += "\033[33m";
                     square += "X";
+                    //resets color
+                    square += "\033[0m";
                 }
                 else{
                     square += "-";

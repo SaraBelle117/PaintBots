@@ -16,4 +16,5 @@ class GameBoardTest : public ITest {
             bool testScores();
             bool testGetLongRangeScan();
             bool testGetShortRangeScan();
+            bool testObserver();
 };

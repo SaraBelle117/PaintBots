@@ -4,6 +4,10 @@ using namespace std;
 
 ConfigTest::ConfigTest(){}
 
+/**
+ * Completes the tests for the config class
+ * @return true if all tests passed, false otherwise
+ */
 bool ConfigTest::doTests(){
     cout << "Testing Config class......." << endl;
 
@@ -13,7 +17,7 @@ bool ConfigTest::doTests(){
 
 /**
  * Prints the values of each game variable for debugging
- * @param the configuration of the game to print values of
+ * @param the configuration of the game to print values of the config
  */
 void ConfigTest::printConfigVals(Config newConfig){
     cout << "Printing failed config values..." << endl;
@@ -28,6 +32,7 @@ void ConfigTest::printConfigVals(Config newConfig){
 
 /**
  * helper method to test config values 
+ * @return true if tests passed, false otherwise
  */
 bool ConfigTest::testConfigValues(const Config& config, const string& filename, int exp_hitDuration, 
                     int exp_paintBlobLimit, int exp_rockLowerBound, int exp_rockUpperBound, 
@@ -53,6 +58,7 @@ bool ConfigTest::testConfigValues(const Config& config, const string& filename, 
 
 /**
  * Tests that the default constructor has expected values
+ * @return true if test passed, false otherwise
  */
 bool ConfigTest::testDefaultConstructor(){
     Config newConfig;
@@ -76,6 +82,7 @@ bool ConfigTest::testDefaultConstructor(){
 
 /**
  * Tests constructor (with path/file name)
+ * @return true if test passed, false otherwise
  */
 bool ConfigTest::testConstructor(){
 
