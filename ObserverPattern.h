@@ -1,4 +1,5 @@
 #pragma once
+#include "BoardSquare.h"
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -6,8 +7,22 @@ using namespace std;
 enum Event {
     SQUARE_COLOR,
     ROBOT_MOVE,
-    SCORE_UPDATE
+    SCORE_UPDATE,
+    SQUARE_TYPE
 };
+
+//changed to XRED and XBLUE per the announcement 
+enum RobotColor{XRED, XBLUE};
+
+enum RobotMove{ROTATELEFT, ROTATERIGHT, FORWARD, NONE};
+
+struct RobotMoveRequest
+{
+    RobotColor robot; 
+    RobotMove move;
+    bool shoot;
+};
+
 
 template <class T>
 class ObservableData {
@@ -18,8 +33,7 @@ class ObservableData {
         union Data{
 
             struct {
-                int x;
-                int y;
+                Location pos;
                 SquareColor color;
             } SquareColorData;
 
@@ -31,12 +45,21 @@ class ObservableData {
                 int score;
             } scoreUpdateData;
 
+            struct{
+                Location position;
+                SquareType sq;
+            } squareTypeData;
+
         } data;
 
         //Virtual destructor (to be implemented)
         virtual ~ObservableData() = default;
         explicit ObservableData(Event t, const Data& d) : type(t), data(d) {}
 
+        /**
+         * Gets the given data
+         * @return Data reference 
+         */
         const Data& getData() const 
         { 
             return data; 
@@ -44,6 +67,7 @@ class ObservableData {
 
         /**
          * Returns the given event type
+         * @return Event type 
          */
         Event getEvent() const 
         {
