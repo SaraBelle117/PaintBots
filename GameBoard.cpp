@@ -9,7 +9,7 @@ GameBoard* GameBoard::instance = nullptr;
 /**
  * Constructs the GameBoard with the default configuration values
  */
-GameBoard::GameBoard() : board(row, vector<InternalBoardSquare>(col))
+GameBoard::GameBoard() : board(rows, vector<InternalBoardSquare>(cols))
 {
     //populates boarder of the GameBoard with WALL BoardSquares
     setWalls();
@@ -22,16 +22,13 @@ GameBoard::GameBoard() : board(row, vector<InternalBoardSquare>(col))
 
     //sets the fog squares on the GameBoard
     randomizeFogs();
-
-    //registers display as an observer
-    registerObserver(new PlainDisplay(this));
 }
 
 /**
  * Constructs a GameBoard using the specific configuration given
  * @param Config 
  */
-GameBoard::GameBoard(Config config): board(row, vector<InternalBoardSquare>(col))
+GameBoard::GameBoard(Config config): board(rows, vector<InternalBoardSquare>(cols))
 {
     //populates boarder of the GameBoard with WALL BoardSquares
     setWalls();
@@ -44,9 +41,6 @@ GameBoard::GameBoard(Config config): board(row, vector<InternalBoardSquare>(col)
 
     //sets the fog squares on the GameBoard
     randomizeFogs();
-
-    //registers display as an observer
-    registerObserver(new PlainDisplay(this));
 }
 
 /**
@@ -55,11 +49,11 @@ GameBoard::GameBoard(Config config): board(row, vector<InternalBoardSquare>(col)
  * @param int y
  * @param SquareColor col
  */
-void GameBoard::notifySquareColorChange(int x, int y, SquareColor col)
+void GameBoard::notifySquareColorChange(Location pos, SquareColor col)
 {   
     //creates the union data
     ObservableData<GameBoard>::Data data;
-    data.SquareColorData = {x, y, col};
+    data.SquareColorData = {pos, col};
 
     //creates the ObservableData type
     ObservableData<GameBoard> event(SQUARE_COLOR, data);
@@ -104,6 +98,24 @@ void GameBoard::notifyScoreUpdate(int score)
 }
 
 /**
+ * Notifies the observers about the SquareType change
+ * @param int location
+ * @param SquareType 
+ */
+void GameBoard::notifySquareTypeChange(Location position, SquareType sq)
+{
+    //creates the union data
+    ObservableData<GameBoard>::Data data;
+    data.squareTypeData = {position, sq};
+
+    //creates the ObservableData type
+    ObservableData<GameBoard> event(SQUARE_TYPE, data);
+
+    //notifies the observers
+    notifyObservers(&event);
+}
+
+/**
  * Frees the memory used for LongRangeScan() and ShortRangeScan()
  * @param ExternalBoardSquare** list
  * @param int size of the given list (15x15 for long, 5x5 for short)
@@ -128,7 +140,7 @@ void GameBoard::reset()
 {
     //resets the board
     board.clear();
-    board.resize(row, vector<InternalBoardSquare>(col));
+    board.resize(rows, vector<InternalBoardSquare>(cols));
 
     //reinitialize the game pieces
     setWalls();
@@ -151,6 +163,10 @@ GameBoard* GameBoard::getInstance(string password)
 
     if(instance == nullptr){
         instance = new GameBoard();
+
+        //registers display as an observer
+        PlainDisplay* display = new PlainDisplay();
+        instance->registerObserver(display);
     }
 
     return instance;
@@ -170,6 +186,9 @@ GameBoard* GameBoard::getInstance(string password, Config config)
 
     if(instance == nullptr){
         instance = new GameBoard(config);
+        //registers display as an observer
+        PlainDisplay* display = new PlainDisplay();
+        instance->registerObserver(display);
     }
     else{
         cerr << "Warning: GameBoard already exists, new configuration has been ignored." << endl;
@@ -184,10 +203,10 @@ GameBoard* GameBoard::getInstance(string password, Config config)
  */
 void GameBoard::setWalls()
 {
-    for(int i = 0; i < row; i++){
-        for(int j = 0; j < col; j++){
+    for(int i = 0; i < rows; i++){
+        for(int j = 0; j < cols; j++){
             //if boundary of the grid, set SquareType as WALL
-            if(i == 0 || i == (row - 1) || j == 0 || j == (col - 1)){
+            if(i == 0 || i == (rows - 1) || j == 0 || j == (cols - 1)){
                 board[i][j].applySquareType(WALL);
             }
         }
@@ -209,8 +228,8 @@ void GameBoard::setRocks(Config config)
         //generates a rand num until it finds an empty square (with no blue or red robot present)
         while(board[x][y].getSquareType() != EMPTY || board[x][y].redRobotPresent() || board[x][y].blueRobotPresent()){
             //ensures x & y is a random number between 1 - 13
-            x = RAND_IN_RANGE(1, 13);
-            y = RAND_IN_RANGE(1, 13); 
+            x = RAND_IN_RANGE(1, 15);
+            y = RAND_IN_RANGE(1, 15); 
 
             attempts++;
             if(attempts > 100){
@@ -233,16 +252,17 @@ void GameBoard::randomizeFogs()
     //adds that number of fog squares to valid points on the board
     for(int i = 0; i < numFogs; i++){
         //initialize to zero 
-        int x = 0, y = 0;
+        Location p;
+        p.x = 0, p.y = 0;
 
         //fixes infinite loop issue
         int attempts = 0;
 
         //generates a rand num until it finds a valid square
-        while(board[x][y].getSquareType() == WALL || board[x][y].redRobotPresent() || board[x][y].blueRobotPresent()){
+        while(board[p.x][p.y].getSquareType() == WALL || board[p.x][p.y].redRobotPresent() || board[p.x][p.y].blueRobotPresent()){
             //ensures x & y is a random number between 1 - 13
-            x = RAND_IN_RANGE(1, 13);
-            y = RAND_IN_RANGE(1, 13);
+            p.x = RAND_IN_RANGE(1, 15);
+            p.y = RAND_IN_RANGE(1, 15);
 
             attempts++;
             if(attempts > 1000){
@@ -250,11 +270,13 @@ void GameBoard::randomizeFogs()
             }
         }
         //sets fog square at valid point found (edited to allow rock and fog to share a square)
-        if(board[x][y].getSquareType() == ROCK){
-            board[x][y].applySquareType(FOGANDROCK);
+        if(board[p.x][p.y].getSquareType() == ROCK){
+            board[p.x][p.y].applySquareType(FOGANDROCK);
+            notifySquareTypeChange(p, FOGANDROCK);
         }
         else{
-            board[x][y].applySquareType(FOG);
+            board[p.x][p.y].applySquareType(FOG);
+            notifySquareTypeChange(p, FOG);
         }
 
     }
@@ -271,8 +293,8 @@ void GameBoard::setRobots()
         //generates a rand num until it finds an empty square (with no blue or red robot present)
         while(board[x][y].getSquareType() != EMPTY || board[x][y].redRobotPresent() || board[x][y].blueRobotPresent()){
             //ensures x & y is a random number between 1 - 13
-            x = RAND_IN_RANGE(1, 13);
-            y = RAND_IN_RANGE(1, 13);
+            x = RAND_IN_RANGE(1, 15);
+            y = RAND_IN_RANGE(1, 15);
         }
         if(rc == XRED){
             board[x][y].applyRedRobotPresent(true);
@@ -290,11 +312,12 @@ void GameBoard::setRobots()
  * @param int row
  * @param int col
  * @return InternalBoardSquare at board[row][col]
+ * @throws out_of_range expection if given an invalid square index
  */
 InternalBoardSquare & GameBoard::getSquare(int row, int col)
 {
     //ensures the row and col are valid values
-    if(row >= 0 && col >= 0 && row < 15 && col < 15){
+    if(row >= 0 && col >= 0 && row < rows && col < cols){
         return board[row][col];
     }
     else{
@@ -304,9 +327,9 @@ InternalBoardSquare & GameBoard::getSquare(int row, int col)
 }
 
 /**
- * Performs the request move on the designated robot
+ * Performs the requested move on the designated robot
  * @param RobotMoveRequest & mr
- * @return bool (true if successful, false otherwise)
+ * @return bool (true if successful, TRUE (for Part B) otherwise)
  */
 bool GameBoard::moveRobot(RobotMoveRequest & mr)
 {
@@ -397,13 +420,13 @@ bool GameBoard::PaintBlobHit(RobotMoveRequest & mr)
                 red.paintblobs++;
                 setRobotPaintColor(mr.robot, RED);
                 //notifies Observers of SquareColor Change
-                notifySquareColorChange(pos.x, pos.y, RED);
+                notifySquareColorChange(pos, RED);
             } 
             if(mr.robot == XBLUE){
                 blue.paintblobs++;
                 setRobotPaintColor(mr.robot, BLUE);
                 //notifies Observers of SquareColor Change
-                notifySquareColorChange(pos.x, pos.y, BLUE);
+                notifySquareColorChange(pos, BLUE);
             }
             return true;
         }
@@ -421,6 +444,7 @@ bool GameBoard::PaintBlobHit(RobotMoveRequest & mr)
  */
 int GameBoard::getScore(RobotColor col)
 {
+    //sets the RobotColor (to the corresponding SquareColor)
     SquareColor color;
     if(col == XRED){
         color = RED;
@@ -428,10 +452,12 @@ int GameBoard::getScore(RobotColor col)
     else{
         color = BLUE;
     }
-    
+
     int score = 0;
-    for(int i = 0; i < 15; i++){
-        for(int j = 0; j < 15; j++){
+
+    //iterates through the playable area of the board
+    for(int i = 1; i <= playable_rows; i++){
+        for(int j = 1; j <= playable_cols; j++){
             if(board[i][j].getSquareColor() == color){
                 score++;
             }
@@ -463,19 +489,23 @@ int GameBoard::redScore()
  * @param int row
  * @param int col
  * @param SquareColor sc
+ * @throws out_of_range exception
  */
 void GameBoard::setSquareColor(int x, int y, SquareColor sc)
 {
     //ensures the row and col are valid values
-    if(x >= 0 && y >= 0 && x < 15 && y < 15){
+    if(x >= 1 && y >= 1 && x <= playable_rows && y <= playable_cols){
         board[x][y].applySquareColor(sc);
     }
     else{
         //throws error if row and col are now valid
         throw out_of_range("Invalid square index.");
     }
+    //sets the point so we can send it to notify the observers
+    Location point = {x, y};
+
     //updates the observers
-    notifySquareColorChange(x, y, sc);
+    notifySquareColorChange(point, sc);
 }
 
 /**
@@ -497,15 +527,15 @@ void GameBoard::setRobotPaintColor(RobotColor robot, SquareColor sc)
 ExternalBoardSquare** GameBoard::getLongRangeScan()
 {
     //Allocates row of pointers (for 2D array)
-   ExternalBoardSquare** longboard = new ExternalBoardSquare*[row];
+    ExternalBoardSquare** longboard = new ExternalBoardSquare*[playable_rows];
 
-   for(int i = 0; i < row; i++){
+    for(int i = 0; i < playable_rows; i++){
         //Allocates each row as an array of ExternalBoardSquares 
-        longboard[i] = new ExternalBoardSquare[col];
-    for(int j = 0; j < col; j++){
-        //sets each value according to the board given
-        longboard[i][j] = ExternalBoardSquare(board[i][j]);
-    }
+        longboard[i] = new ExternalBoardSquare[playable_cols];
+        for(int j = 0; j < playable_cols; j++){
+            //sets each value according to the board given
+            longboard[i][j] = ExternalBoardSquare(board[i + 1][j + 1]);
+        }
    }
    return longboard;
 }
@@ -576,11 +606,14 @@ ExternalBoardSquare** GameBoard::getShortRangeScan(RobotColor rc)
 Location GameBoard::find(RobotColor rc)
 {
     Location p;
+
     //iterates through the board until the given robot is found
-    for(int i = 0; i < 15; i++){
-        for(int j = 0; j < 15; j++){
+    for(int i = 0; i < playable_rows; i++){
+        for(int j = 0; j < playable_cols; j++){
             //checks that square contains robot desired
             InternalBoardSquare& sq = getSquare(i, j);
+
+            //finds the given robot, and returns the point on the GameBoard
             if((sq.redRobotPresent() && rc == XRED) || (sq.blueRobotPresent() && rc == XBLUE)){
                 p.x  = i;
                 p.y = j;
@@ -628,5 +661,5 @@ Location GameBoard::getNextPosition(Location point, Direction dir){
  */
 bool GameBoard::checkBounds(int x, int y)
 {
-    return (x >= 0 && x < 15 && y >= 0 && y < 15);
+    return (x >= 0 && x < playable_rows && y >= 0 && y < playable_cols);
 }

@@ -1,4 +1,5 @@
 #include "GameBoardTest.h"
+#include "PlainDisplay.h"
 #include <iostream>
 using namespace std;
 
@@ -142,26 +143,33 @@ bool GameBoardTest::testScores()
         return false;
     }
 
-    //sets all square colors as red
-    for(int i = 0; i < 15; i++){
-        for(int j = 0; j < 15; j++){
-            gb7->setSquareColor(i, j, RED);
+    try{
+        //sets all square colors as red
+        for(int i = 1; i <= 15; i++){
+            for(int j = 1; j <= 15; j++){
+                gb7->setSquareColor(i, j, RED);
+            }
         }
-    }
-    if(gb7->redScore() != 225){
-        cout << "Test scores(): FAILED" << gb7->redScore() << endl;
+        if(gb7->redScore() != 225){
+            cout << "Test scores(): FAILED" << gb7->redScore() << endl;
+            return false;
+        }
+
+        //sets all square colors as white (resets)
+        for(int i = 1; i <= 15; i++){
+            for(int j = 1; j <= 15; j++){
+                gb7->setSquareColor(i, j, WHITE);
+            }
+        }
+
+        cout << "Test scores(): PASSED" << endl;
+        return true;
+
+       //catches out of range exception 
+    } catch(out_of_range exception){
+        cout << "Test scores(): FAILED (caught out_of_range exception)" << endl;
         return false;
     }
-
-    //sets all square colors as white (resets)
-    for(int i = 0; i < 15; i++){
-        for(int j = 0; j < 15; j++){
-            gb7->setSquareColor(i, j, WHITE);
-        }
-    }
-
-    cout << "Test scores(): PASSED" << endl;
-    return true;
 }
 
 /**
@@ -184,8 +192,14 @@ bool GameBoardTest::testGetLongRangeScan()
 
     ExternalBoardSquare** grid = gb5->getLongRangeScan();
 
-    if(grid[1][1].getSquareColor() != BLUE || grid[2][2].getSquareColor() != RED || grid[3][3].getSquareColor() != WHITE){
+    //displays the grid returns from getLongRangeScan()
+    cout << "Printing getLongRangeScan()... " << endl;
+    PlainDisplay display;
+    display.displayScan(grid, 15);
+
+    if(grid[0][0].getSquareColor() != BLUE || grid[1][1].getSquareColor() != RED || grid[2][2].getSquareColor() != WHITE){
         cout << "Test getLongRangeScan(): FAILED" << endl;
+        gb5->freeScan(grid, 15);
         return false;
     }
     cout << "Test getLongRangeScan(): PASSED" << endl;
@@ -208,20 +222,28 @@ bool GameBoardTest::testGetShortRangeScan()
         cerr << "GameBoard instance could not be created." << endl;
         return false;
     }
+    
+    Location position = gb6->find(XBLUE);
 
-    gb6->setSquareColor(3, 3, BLUE);
-    gb6->setSquareColor(2, 2, BLUE);
+    //sets some of the surrounding BoardSquares as blue
+    gb6->setSquareColor(position.x, position.y, BLUE);
+    gb6->setSquareColor(position.x + 1, position.y, BLUE);
+    gb6->setSquareColor(position.x, position.y + 1, BLUE);
 
 
     ExternalBoardSquare** grid = gb6->getShortRangeScan(XBLUE);
-    InternalBoardSquare sq = gb6->getSquare(2, 2);
-    InternalBoardSquare sq2 = gb6->getSquare(3, 3);
-    if(sq.getSquareColor() != BLUE || sq2.getSquareColor() != BLUE){
+
+    //displays the grid returns from getShortRangeScan()
+    cout << "Printing getShortRangeScan()..." << endl;
+    PlainDisplay display;
+    display.displayScan(grid, 5);
+
+    //checks that the grids we set are blue in the grid, as expected
+    if(grid[2][2].getSquareColor() != BLUE && grid[2][3].getSquareColor() != BLUE && grid[3][2].getSquareColor() != BLUE){
         cout << "Test getShortRangeScan(): FAILED" << endl;
-    
+        gb6->freeScan(grid, 5);
         return false;
     }
-    
     //deletes the array we allocated, since we are done using it 
     gb6->freeScan(grid, 5);
 
@@ -234,7 +256,37 @@ bool GameBoardTest::testGetShortRangeScan()
  */
 bool GameBoardTest::testObserver()
 {
-    return true;
+    GameBoard* gb7 = GameBoard::getInstance("xyzzy");
+    //ensures we have a valid GameBoard before continuing test. 
+    if(gb7 == nullptr){
+        cerr << "GameBoard instance could not be created." << endl;
+        return false;
+    }
+
+    PlainDisplay *display = new PlainDisplay();
+    gb7->registerObserver(display);
+    
+    gb7->setSquareColor(1, 1, RED);
+    
+    ObservableData<GameBoard> *data = display->getLastUpdate();
+
+    //if data returns a nullptr, test failed
+    if(data == nullptr){
+        cout << "Test observer: FAILED" << endl;
+        return false;
+    }
+
+    if(data->getEvent() == SQUARE_COLOR &&
+       data->getData().SquareColorData.pos.x == 1 &&
+       data->getData().SquareColorData.pos.y == 1 &&
+       data->getData().SquareColorData.color == RED){
+        cout << "Test observer: PASSED" << endl;
+        return true;
+    }
+    //if point reached, failed test
+    cout << "Test observer: FAILED" << endl;
+    return false;
+
 }
 
 int main()

@@ -54,7 +54,13 @@ class ObservableData {
 
         //Virtual destructor (to be implemented)
         virtual ~ObservableData() = default;
-        explicit ObservableData(Event t, const Data& d) : type(t), data(d) {}
+
+        //constructor
+        ObservableData(Event t, const Data& d) : type(t), data(d) {}
+
+        //copy constructor
+        ObservableData(const ObservableData& rhs) : type(rhs.type), data(rhs.data){}
+
 
         /**
          * Gets the given data

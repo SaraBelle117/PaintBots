@@ -23,8 +23,15 @@ struct Robot
 class GameBoard : public Observable<GameBoard> {
     private:
         static GameBoard* instance;
-        const int row = 15;
-        const int col = 15;
+
+        //actual size of the GameBoard (17x17)
+        const int rows = 17;
+        const int cols = 17;
+
+        //playable size of the GameBoard (15x15)
+        const int playable_rows = 15;
+        const int playable_cols = 15;
+
         vector<vector<InternalBoardSquare>> board;
         Config config;
         Robot blue;
@@ -66,13 +73,16 @@ class GameBoard : public Observable<GameBoard> {
         void randomizeFogs();
 
         //notifies square color change
-        void notifySquareColorChange(int x, int y, SquareColor col);   
+        void notifySquareColorChange(Location pos, SquareColor col);   
 
         //notifies robot move change
         void notifyRobotMove(const RobotMoveRequest& mr);
 
         //notifies score update change
         void notifyScoreUpdate(int score);
+
+        //notifies SquareType change
+        void notifySquareTypeChange(Location position, SquareType sq);
 
         //for handling memory for longRangeScan() and shortRangeScan()
         void freeScan(ExternalBoardSquare** list, int size);
@@ -93,7 +103,7 @@ class GameBoard : public Observable<GameBoard> {
             //clears the vector
             observers.clear();
 
-            //resets the Singleton instance
+            //resets the Singleton instance (might not be needed)
             instance = nullptr;
         }
         
