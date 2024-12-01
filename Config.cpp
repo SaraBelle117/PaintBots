@@ -44,7 +44,7 @@ Config::Config(const char* path){
         if(!line.empty() && line[0] == '#' ) continue;
 
             //locates index of = 
-            int eq_index = line.find('=');
+            string::size_type eq_index = line.find('=');
             
             //check that = was found (skip if not found)
             if(eq_index == string::npos){
