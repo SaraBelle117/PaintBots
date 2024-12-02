@@ -44,10 +44,22 @@ To run the test files, type "make", and you can run each test as follows:
 ./GameBoardTest
 
 ## Display of the Game
-PlainDisplay shows the 15 x 15 GameBoard with the following rules. 
+PlainDisplay shows the 17 x 17 GameBoard -- I decided to go with 17 x 17 to show the walls for simplicity, even though the playable area is only 15 x 15. 
+
+Here is how it displays each BoardSquare:
 - if the Square is a WALL, it will be represented as "WWWW"
 - otherwise, it is implemented as follows, with each number being the letter (each square is 4 chars):
     1. The first letter represents the square color (R, B, or W)
     2. The second letter represents if a robot is present (R, B, or -)
     3. The third letter represents if a rock sqwuare is present (X, or -)
     4. The third letter represents if a fog square is present (X, or -)
+
+I also added colors for the given types of squares just for extra readability. Robots and SquareColors are their actual colors, while the Robots are "bold" to stand out a bit more. Additionally, ROCK squares are green, while FOG squares are yellow, and WALL squares are purple. 
+
+## Please Note
+As always, I had to make some assumptions for Part B (as we are not quite implementing the full game just yet), so here is a list of some things that were not implemented on purpose:
+- There is currently only one Observer of the GameBoard -- PlainDisplay.
+- PaintBlobHit() in GameBoard does not increment the number of PaintBlobs for either robot. 
+- moveRobot() always returns true as a move can always be made.
+- getLongRangeScan() does not check whether or not the given robot has enough calls left to make.
+- There is no game logic (per the specification), so game-ending events are not checked. 

@@ -397,15 +397,20 @@ bool GameBoard::PaintBlobHit(RobotMoveRequest & mr)
     if(mr.robot == XRED && red.paintblobs >= config.getPaintBlobLimit())return false;
     if(mr.robot == XBLUE && blue.paintblobs >= config.getPaintBlobLimit()) return false;
 
-
+    //locates the position of the robot
     Location pos = find(mr.robot);
-    RobotColor enemy;
+
+    //identifies enemy robot color
+    RobotColor enemy;   
     if(mr.robot == XRED) enemy = XBLUE;
     if(mr.robot == XBLUE) enemy = XRED;
+
     //identifies the enemy color position on the GameBoard
     Location enemy_pos = find(enemy);
     InternalBoardSquare sq;
     
+    //runs until we hit a ROCK or WALL square (indicates there is no straight)
+    //path to an enemy Square
     do{
         //checks we are are still in bounds!
         if(!checkBounds(pos.x, pos.y)) break;
@@ -428,6 +433,7 @@ bool GameBoard::PaintBlobHit(RobotMoveRequest & mr)
                 //notifies Observers of SquareColor Change
                 notifySquareColorChange(pos, BLUE);
             }
+            //indicates a successful PlaintBlobHit!
             return true;
         }
         //traces the movement until one of these conditions is reached
