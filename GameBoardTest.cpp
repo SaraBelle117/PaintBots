@@ -166,7 +166,7 @@ bool GameBoardTest::testScores()
         return true;
 
        //catches out of range exception 
-    } catch(const out_of_range exception){
+    } catch(const out_of_range& exception){
         cout << "Test scores(): FAILED (caught out_of_range exception)" << endl;
         return false;
     }
