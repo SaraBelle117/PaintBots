@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <string.h>
 #include "Config.h"
 using namespace std;
 
