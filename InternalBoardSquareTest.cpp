@@ -5,6 +5,10 @@ using namespace std;
 
 InternalBoardSquareTest::InternalBoardSquareTest() {}
 
+/**
+ * Completes the tests for InternalBoardSquare class
+ * @return true if tests passed, false otherwise
+ */
 bool InternalBoardSquareTest::doTests()
 {
 
@@ -27,6 +31,10 @@ bool InternalBoardSquareTest::testSetColor()
     }
 }
 
+/**
+ * Tests the robot presence works as expected
+ * @return true if passed, otherwise false
+ */
 bool InternalBoardSquareTest::testRobotPresence()
 {
     InternalBoardSquare square2(WHITE, EMPTY, NORTH, true, false);
@@ -54,6 +62,11 @@ bool InternalBoardSquareTest::testRobotPresence()
     return(test1 && test2);
 }
 
+/**
+ * Tests the direction of InternalBoardSquare works as
+ * expected
+ * @return true if tests pass, otherwise false
+ */
 bool InternalBoardSquareTest::testDirection()
 {
     InternalBoardSquare square4(WHITE, EMPTY, SOUTH, false, false);
@@ -68,6 +81,10 @@ bool InternalBoardSquareTest::testDirection()
     }
 }
 
+/**
+ * Tests that InternalBoardSquare is a base class of BoardSquare
+ * @return true if test passed, otherwise false
+ */
 bool InternalBoardSquareTest::testBase()
 {
     if(std::is_base_of<BoardSquare, InternalBoardSquare>::value){

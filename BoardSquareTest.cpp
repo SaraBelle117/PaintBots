@@ -5,6 +5,10 @@ using namespace std;
 
 BoardSquareTest::BoardSquareTest() {}
 
+/**
+ * Completes the tests for the BoardSquare class
+ * @return true if tests passed, false otherwise
+ */
 bool BoardSquareTest::doTests()
 {
     cout << "Testing BoardSquare class......." << endl;
@@ -12,6 +16,10 @@ bool BoardSquareTest::doTests()
     return (testSetColor() && testRobotPresence() && testDirection());
 }
 
+/**
+ * Tests the setColor() method in BoardSquare
+ * @return true if tests passed, otherwise false
+ */
 bool BoardSquareTest::testSetColor()
 {
     BoardSquare sq(BLUE, EMPTY, NORTH, false, false);
@@ -26,6 +34,10 @@ bool BoardSquareTest::testSetColor()
     }
 }
 
+/**
+ * Tests the Robot presence method is working as expected
+ * @return true if test passed, otherwise false
+ */
 bool BoardSquareTest::testRobotPresence()
 {
     BoardSquare sq2(WHITE, EMPTY, NORTH, false, true);
@@ -40,6 +52,10 @@ bool BoardSquareTest::testRobotPresence()
     }
 }
 
+/**
+ * tests the direction of the square is being set/accessed as expected
+ * @return true if test passed, otherwise false
+ */
 bool BoardSquareTest::testDirection()
 {
     BoardSquare sq3(WHITE, EMPTY, WEST, false, false);

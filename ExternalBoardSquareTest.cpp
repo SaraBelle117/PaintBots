@@ -5,12 +5,20 @@ using namespace std;
 
 ExternalBoardSquareTest::ExternalBoardSquareTest() {}
 
+/**
+ * Tests the ExternalBoardSquare class
+ * @return true if all tests passed, false otherwise
+ */
 bool ExternalBoardSquareTest::doTests()
 {
     cout << "Testing ExternalBoard class......." << endl;
     return (testBase());
 }
 
+/**
+ * Tests that ExternalBoardSquare is a base class of BoardSquare
+ * @return true if test passed, otherwise false
+ */
 bool ExternalBoardSquareTest::testBase()
 {
     if(std::is_base_of<BoardSquare, ExternalBoardSquare>::value){

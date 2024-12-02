@@ -6,9 +6,9 @@ enum SquareType {EMPTY, ROCK, FOG, WALL, FOGANDROCK};
 
 enum SquareColor {RED, BLUE, WHITE};
 
-//for tracking BoardSquare's location (and more)
+//for tracking BoardSquares
 struct Location{
-    int x; 
+    int x;
     int y;
 };
 
@@ -31,20 +31,20 @@ class BoardSquare{
         void setBlueRobotPresent(bool p);
 
     public:
-        //default constructor
+        //default constructor (implemented in CPP file)
         BoardSquare();
 
-        //specific constructor
-        BoardSquare(SquareColor col, SquareType sq, Direction dir, bool redRobot, bool blueRobot);
+        //specific constructor (implemented in CPP file)
+        BoardSquare(SquareColor col, SquareType sq, Direction dir, bool redRobot, bool blueRobot); 
 
         //virtual destructor
         virtual ~BoardSquare(){};
 
-        //copy constructor
+        //copy constructor (implemented in CPP file)
         BoardSquare(const BoardSquare & rhs);
 
-        //operator = 
-        const BoardSquare & operator = (const BoardSquare & rhs);
+        //operator = (implemented in CPP file)
+        const BoardSquare & operator = (const BoardSquare & rhs); 
 
         //getter methods
         inline SquareColor getSquareColor() const {
