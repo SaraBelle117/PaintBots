@@ -252,6 +252,7 @@ bool GameBoardTest::testGetShortRangeScan()
     fog.applySquareType(FOG);
 
     grid = gb->getShortRangeScan(XRED);
+    cout << "Printing getShortRangeScan()..." << endl;
     display.displayScan(grid, 5);
 
     if(grid[2][2].getSquareType() != FOG){
