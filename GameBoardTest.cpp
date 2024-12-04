@@ -223,6 +223,8 @@ bool GameBoardTest::testGetShortRangeScan()
         return false;
     }
     
+    try {
+
     Location position = gb6->find(XBLUE);
 
     //sets some of the surrounding BoardSquares as blue
@@ -260,6 +262,10 @@ bool GameBoardTest::testGetShortRangeScan()
 
     //deletes the array we allocated, since we are done using it 
     gb6->freeScan(grid, 5);
+    } catch(const runtime_error& ){
+        cout << "Test getShortRangeScan(): FAILED [runtime error caught]" << endl;
+        return false;
+    }
 
 
     //this point reached, indicates all tests have passed
