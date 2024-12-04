@@ -3,22 +3,13 @@
 #include "InternalBoardSquare.h"
 #include "ExternalBoardSquare.h"
 #include "Config.h"
+#include "Robot.h"
 #include <string>
 #include <vector>
 #include <cstdlib>
 using namespace std;
 
 #define RAND_IN_RANGE(min, max) ((min) + rand() % ((max) - (min) + 1))
-
-struct Robot
-{
-    RobotMoveRequest robotmove;
-    RobotColor color;
-    SquareColor paintcolor;
-    int paintblobs;
-    int longrange;
-};
-
 
 class GameBoard : public Observable<GameBoard> {
     private:
@@ -34,6 +25,7 @@ class GameBoard : public Observable<GameBoard> {
 
         vector<vector<InternalBoardSquare>> board;
         Config config;
+
         Robot blue;
         Robot red;
 
@@ -49,7 +41,7 @@ class GameBoard : public Observable<GameBoard> {
         //helper methods
 
         //for blueScore() and redScore()
-        int getScore(RobotColor col);
+        int getScore(Robot::RobotColor col);
 
         //for setting walls on the GameBoard
         void setWalls();
@@ -61,7 +53,7 @@ class GameBoard : public Observable<GameBoard> {
         void setRobots();
 
         //finds the BoardSquare that contains the given robot
-        Location find(RobotColor rc);
+        Location find(Robot::RobotColor rc);
 
         //identifies the next position (given direction)
         Location getNextPosition(Location point, Direction dir);
@@ -127,9 +119,9 @@ class GameBoard : public Observable<GameBoard> {
         int blueScore();
         int redScore();
         void setSquareColor(int row, int col, SquareColor sc);
-        void setRobotPaintColor(RobotColor robot, SquareColor sc);
+        void setRobotPaintColor(Robot::RobotColor robot, SquareColor sc);
         ExternalBoardSquare** getLongRangeScan();
-        ExternalBoardSquare** getShortRangeScan(RobotColor rc);
+        ExternalBoardSquare** getShortRangeScan(Robot::RobotColor rc);
 
 
 };

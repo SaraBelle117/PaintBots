@@ -281,7 +281,7 @@ void GameBoard::setFogs()
  */
 void GameBoard::setRobots()
 {
-    for(RobotColor rc : {XRED, XBLUE}){
+    for(Robot::RobotColor rc : {Robot::RED, Robot::BLUE}){
         //for positions of the board we are adding robots to
         int x = 0, y = 0;
         //generates a rand num until it finds an empty square (with no blue or red robot present)
@@ -290,13 +290,13 @@ void GameBoard::setRobots()
             x = RAND_IN_RANGE(1, 15);
             y = RAND_IN_RANGE(1, 15);
         }
-        if(rc == XRED){
+        if(rc == Robot::RED){
             board[x][y].applyRedRobotPresent(true);
-            setRobotPaintColor(XRED, RED);
+            setRobotPaintColor(Robot::RED, RED);
         }
         else{
             board[x][y].applyBlueRobotPresent(true);
-            setRobotPaintColor(XBLUE, BLUE);
+            setRobotPaintColor(Robot::BLUE, BLUE);
         }
     }
 }
@@ -358,7 +358,7 @@ bool GameBoard::moveRobot(RobotMoveRequest & mr)
         Location newPos = getNextPosition(pos, board[pos.x][pos.y].robotDirection());
 
         //sets the old square (the one we are moving from) as the Robot's color
-        if(mr.robot == XRED){
+        if(mr.robot == Robot::RED){
             board[pos.x][pos.y].applyRedRobotPresent(false);
             board[newPos.x][newPos.y].applyRedRobotPresent(true);
             setSquareColor(pos.x, pos.y, red.paintcolor);
@@ -388,16 +388,16 @@ bool GameBoard::moveRobot(RobotMoveRequest & mr)
 bool GameBoard::PaintBlobHit(RobotMoveRequest & mr)
 {   
     //checks that the given robot has enough paintBlobs to shoot
-    if(mr.robot == XRED && red.paintblobs >= config.getPaintBlobLimit())return false;
-    if(mr.robot == XBLUE && blue.paintblobs >= config.getPaintBlobLimit()) return false;
+    if(mr.robot == Robot::RED && red.paintblobs >= config.getPaintBlobLimit())return false;
+    if(mr.robot == Robot::BLUE && blue.paintblobs >= config.getPaintBlobLimit()) return false;
 
     //locates the position of the robot
     Location pos = find(mr.robot);
 
     //identifies enemy robot color
-    RobotColor enemy;   
-    if(mr.robot == XRED) enemy = XBLUE;
-    if(mr.robot == XBLUE) enemy = XRED;
+    Robot::RobotColor enemy;   
+    if(mr.robot == Robot::RobotColor::RED) enemy = Robot::RobotColor::BLUE;
+    if(mr.robot == Robot::RobotColor::BLUE) enemy = Robot::RobotColor::RED;
 
     //identifies the enemy color position on the GameBoard
     Location enemy_pos = find(enemy);
@@ -415,13 +415,13 @@ bool GameBoard::PaintBlobHit(RobotMoveRequest & mr)
         //indicates that we have hit the enemy with our PaintBlob
         if(pos.x == enemy_pos.x && pos.y == enemy_pos.y){
             //increments corresponding limit
-            if(mr.robot == XRED){
+            if(mr.robot == Robot::RobotColor::RED){
                 red.paintblobs++;
                 setRobotPaintColor(mr.robot, RED);
                 //notifies Observers of SquareColor Change
                 notifySquareColorChange(pos, RED);
             } 
-            if(mr.robot == XBLUE){
+            if(mr.robot == Robot::RobotColor::BLUE){
                 blue.paintblobs++;
                 setRobotPaintColor(mr.robot, BLUE);
                 //notifies Observers of SquareColor Change
@@ -442,11 +442,11 @@ bool GameBoard::PaintBlobHit(RobotMoveRequest & mr)
  * @param RobotColor col
  * @return int value of score
  */
-int GameBoard::getScore(RobotColor col)
+int GameBoard::getScore(Robot::RobotColor col)
 {
     //sets the RobotColor (to the corresponding SquareColor)
     SquareColor color;
-    if(col == XRED){
+    if(col == Robot::RobotColor::RED){
         color = RED;
     }
     else{
@@ -472,7 +472,7 @@ int GameBoard::getScore(RobotColor col)
  */
 int GameBoard::blueScore()
 {
-    return getScore(XBLUE);
+    return getScore(Robot::RobotColor::BLUE);
 }
 
 /**
@@ -481,7 +481,7 @@ int GameBoard::blueScore()
  */
 int GameBoard::redScore()
 {
-    return getScore(XRED);
+    return getScore(Robot::RobotColor::RED);
 }
 
 /**
@@ -513,10 +513,10 @@ void GameBoard::setSquareColor(int x, int y, SquareColor sc)
  * @param RobotColor 
  * @param SquareColor
  */
-void GameBoard::setRobotPaintColor(RobotColor robot, SquareColor sc)
+void GameBoard::setRobotPaintColor(Robot::RobotColor robot, SquareColor sc)
 {
-    if(robot == XRED) red.paintcolor = sc;
-    if(robot == XBLUE) blue.paintcolor = sc;
+    if(robot == Robot::RobotColor::RED) red.paintcolor = sc;
+    if(robot == Robot::RobotColor::BLUE) blue.paintcolor = sc;
 }
 
 /**
@@ -546,7 +546,7 @@ ExternalBoardSquare** GameBoard::getLongRangeScan()
  * @param RobotColor rc
  * @return ExternalBoardSquares as a 5x5 array
  */
-ExternalBoardSquare** GameBoard::getShortRangeScan(RobotColor rc)
+ExternalBoardSquare** GameBoard::getShortRangeScan(Robot::RobotColor rc)
 {   
     //for size of list (clarity purposes)
     const int size = 5;
@@ -601,7 +601,7 @@ ExternalBoardSquare** GameBoard::getShortRangeScan(RobotColor rc)
  * @return Location point
  * @throws runtime_error if no robot found
  */
-Location GameBoard::find(RobotColor rc)
+Location GameBoard::find(Robot::RobotColor rc)
 {
     Location p;
 
@@ -612,7 +612,7 @@ Location GameBoard::find(RobotColor rc)
             InternalBoardSquare& sq = getSquare(i, j);
 
             //finds the given robot, and returns the point on the GameBoard
-            if((sq.redRobotPresent() && rc == XRED) || (sq.blueRobotPresent() && rc == XBLUE)){
+            if((sq.redRobotPresent() && rc == Robot::RobotColor::RED) || (sq.blueRobotPresent() && rc == Robot::RobotColor::BLUE)){
                 p.x  = i;
                 p.y = j;
                 return p; 
