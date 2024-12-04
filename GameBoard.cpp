@@ -609,8 +609,8 @@ Location GameBoard::find(RobotColor rc)
     Location p;
 
     //iterates through the board until the given robot is found
-    for(int i = 0; i < playable_rows; i++){
-        for(int j = 0; j < playable_cols; j++){
+    for(int i = 1; i < playable_rows; i++){
+        for(int j = 1; j < playable_cols; j++){
             //checks that square contains robot desired
             InternalBoardSquare& sq = getSquare(i, j);
 
