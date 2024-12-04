@@ -1,4 +1,5 @@
 #include "GameLogic.h"
+#include "IRobotAgent.h"
 using namespace std;
 
 /**
@@ -23,6 +24,15 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
 void GameLogic::setPause(bool pausemode)
 {
     //TODO
+}
+
+//sets the instance before main is called
+RobotAgentRoster* RobotAgentRoster::instance = nullptr;
+
+//TODO, FIXME: this will need to have 2 paramters
+int main()
+{
+    return 0;
 }
 
 

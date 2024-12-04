@@ -118,7 +118,6 @@ class randomRobot : public IRobotAgent{
 
 };
 
-
 class RobotAgentRoster
 {
     private:
