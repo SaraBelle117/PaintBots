@@ -167,7 +167,7 @@ bool GameBoardTest::testScores()
 
        //catches out of range exception 
     } catch(const out_of_range& exception){
-        cout << "Test scores(): FAILED (caught out_of_range exception)" << endl;
+        cout << "Test scores(): FAILED [" << exception.what() << "]" <<  endl;
         return false;
     }
 }
@@ -262,6 +262,7 @@ bool GameBoardTest::testGetShortRangeScan()
 
     //deletes the array we allocated, since we are done using it 
     gb6->freeScan(grid, 5);
+
     } catch(const runtime_error& ){
         cout << "Test getShortRangeScan(): FAILED [runtime error caught]" << endl;
         return false;
