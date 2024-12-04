@@ -70,7 +70,7 @@ class GameBoard : public Observable<GameBoard> {
         bool checkBounds(int x, int y);
 
         //set fog squares
-        void randomizeFogs();
+        void setFogs();
 
         //notifies square color change
         void notifySquareColorChange(Location pos, SquareColor col);   

@@ -195,17 +195,17 @@ bool GameBoardTest::testGetLongRangeScan()
     //displays the grid returns from getLongRangeScan()
     cout << "Printing getLongRangeScan()... " << endl;
     PlainDisplay display;
-    display.displayScan(grid, 15);
+    display.displayScan(grid, 17);
 
-    if(grid[0][0].getSquareColor() != BLUE || grid[1][1].getSquareColor() != RED || grid[2][2].getSquareColor() != WHITE){
+    if(grid[1][1].getSquareColor() != BLUE || grid[2][2].getSquareColor() != RED || grid[3][3].getSquareColor() != WHITE){
         cout << "Test getLongRangeScan(): FAILED" << endl;
-        gb5->freeScan(grid, 15);
+        gb5->freeScan(grid, 17);
         return false;
     }
     cout << "Test getLongRangeScan(): PASSED" << endl;
 
     //deletes the list since we are now done using it 
-    gb5->freeScan(grid, 15);
+    gb5->freeScan(grid, 17);
 
     return true;
 }
@@ -244,9 +244,26 @@ bool GameBoardTest::testGetShortRangeScan()
         gb6->freeScan(grid, 5);
         return false;
     }
+
+    Location p = gb6->find(XRED);
+    InternalBoardSquare& fog = gb6->getSquare(p.x, p.y);
+    fog.applySquareType(FOG);
+
+    grid = gb6->getShortRangeScan(XRED);
+    display.displayScan(grid, 5);
+
+    if(grid[2][2].getSquareType() != FOG){
+        cout << "Test getShortRangeScan(): FAILED" << endl;
+        gb6->freeScan(grid, 5);
+        return false;
+    }
+
     //deletes the array we allocated, since we are done using it 
     gb6->freeScan(grid, 5);
 
+
+    //this point reached, indicates all tests have passed
+    cout <<  "Test getShortRangeScan(): PASSED " << endl;
     return true;
 }
 

@@ -13,15 +13,12 @@ GameBoard::GameBoard() : board(rows, vector<InternalBoardSquare>(cols))
 {
     //populates boarder of the GameBoard with WALL BoardSquares
     setWalls();
-
     //populates rocks for the GameBoard using config
     setRocks(config);
-
     //sets robots on the GameBoard
     setRobots();
-
     //sets the fog squares on the GameBoard
-    randomizeFogs();
+    setFogs();
 }
 
 /**
@@ -32,15 +29,12 @@ GameBoard::GameBoard(Config config): board(rows, vector<InternalBoardSquare>(col
 {
     //populates boarder of the GameBoard with WALL BoardSquares
     setWalls();
-
     //populates rocks for the GameBoard using config
     setRocks(config);
-
     //sets robots on the GameBoard
     setRobots();
-
     //sets the fog squares on the GameBoard
-    randomizeFogs();
+    setFogs();
 }
 
 /**
@@ -146,7 +140,7 @@ void GameBoard::reset()
     setWalls();
     setRocks(config);
     setRobots();
-    randomizeFogs();
+    setFogs();
 }
 
 /**
@@ -244,7 +238,7 @@ void GameBoard::setRocks(Config config)
 /**
  * Sets the fog squares for the game (also used to update fog squares randomly)
  */
-void GameBoard::randomizeFogs()
+void GameBoard::setFogs()
 {
     //chooses a random value between the bounds (given by the config)
     int numFogs = RAND_IN_RANGE(config.getFogLowerBound(), config.getFogUpperBound());
@@ -528,19 +522,19 @@ void GameBoard::setRobotPaintColor(RobotColor robot, SquareColor sc)
 /**
  * Returns the GameBoard represented as a 2D array of 
  * ExternalBoardSquares
- * @return ExternalBoardSquares as a 15x15 array
+ * @return ExternalBoardSquares as a 17x17 array
  */
 ExternalBoardSquare** GameBoard::getLongRangeScan()
 {
     //Allocates row of pointers (for 2D array)
-    ExternalBoardSquare** longboard = new ExternalBoardSquare*[playable_rows];
+    ExternalBoardSquare** longboard = new ExternalBoardSquare*[rows];
 
-    for(int i = 0; i < playable_rows; i++){
+    for(int i = 0; i < rows; i++){
         //Allocates each row as an array of ExternalBoardSquares 
-        longboard[i] = new ExternalBoardSquare[playable_cols];
-        for(int j = 0; j < playable_cols; j++){
+        longboard[i] = new ExternalBoardSquare[cols];
+        for(int j = 0; j < cols; j++){
             //sets each value according to the board given
-            longboard[i][j] = ExternalBoardSquare(board[i + 1][j + 1]);
+            longboard[i][j] = ExternalBoardSquare(board[i][j]);
         }
    }
    return longboard;
@@ -559,8 +553,9 @@ ExternalBoardSquare** GameBoard::getShortRangeScan(RobotColor rc)
 
     bool fogSquare = false;
     InternalBoardSquare checkFog = getSquare(point.x, point.y);
+
     //checks if the square is a fog square
-    if(checkFog.getSquareType()== FOG){
+    if(checkFog.getSquareType()== FOG || checkFog.getSquareType() == FOGANDROCK){
         fogSquare = true;
     }
 
