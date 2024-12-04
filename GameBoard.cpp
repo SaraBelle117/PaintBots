@@ -659,5 +659,5 @@ Location GameBoard::getNextPosition(Location point, Direction dir){
  */
 bool GameBoard::checkBounds(int x, int y)
 {
-    return (x >= 0 && x < playable_rows && y >= 0 && y < playable_cols);
+    return (x >= 1 && x <= playable_rows && y >= 1 && y <= playable_cols);
 }
