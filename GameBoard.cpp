@@ -548,51 +548,48 @@ ExternalBoardSquare** GameBoard::getLongRangeScan()
  */
 ExternalBoardSquare** GameBoard::getShortRangeScan(RobotColor rc)
 {   
+    //for size of list (clarity purposes)
+    const int size = 5;
+
     //locates the given robot's position on the board
     Location point = find(rc);  
 
-    bool fogSquare = false;
-    InternalBoardSquare checkFog = getSquare(point.x, point.y);
+    InternalBoardSquare centerSq = getSquare(point.x, point.y);
 
     //checks if the square is a fog square
-    if(checkFog.getSquareType()== FOG || checkFog.getSquareType() == FOGANDROCK){
-        fogSquare = true;
-    }
+    bool isFogSquare = (centerSq.getSquareType() == FOG || centerSq.getSquareType() == FOGANDROCK);
 
     //Allocates a 5x5 array
     ExternalBoardSquare** shortboard = new ExternalBoardSquare*[5];
-    //Wall Square to be added (if we are out of bounds of the board)
-    InternalBoardSquare wallSq;
-    wallSq.applySquareType(WALL);
 
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < size; i++){
         shortboard[i] = new ExternalBoardSquare[5];
-        for(int j = 0; j < 5; j++){
+        for(int j = 0; j < size; j++){
             //identifies the corresponding index (x & y values) on the GameBoard (15x15)
             int board_x = (point.x - 2) + i;
             int board_y = (point.y - 2) + j;
 
-            //checks we are within bounds of the GameBoard
-            if(checkBounds(board_x, board_y) && !fogSquare){
+            if(isFogSquare){
+                InternalBoardSquare emptySq;
+                emptySq.applySquareType(EMPTY);
+                shortboard[i][j] = emptySq;
+            }
+            else if(checkBounds(board_x, board_y)){
                 shortboard[i][j] = ExternalBoardSquare(board[board_x][board_y]);
             }
-            else if(!fogSquare){
-                //if not within bounds, set the BoardSquare as WALL
-                shortboard[i][j] = ExternalBoardSquare(wallSq);
-            }
             else{
-                //if we are a fog square, all squares should be empty (unless center)
-                InternalBoardSquare empty;
-                empty.applySquareType(EMPTY);
-                shortboard[i][j] = ExternalBoardSquare(empty);
+                //indicates that this is a WALL square
+                InternalBoardSquare wallSq;
+                wallSq.applySquareType(WALL);
+                shortboard[i][j] = wallSq;
             }
         }
     }
     //if the robot is on a Fog square, then the center square should be a fog square
-    if(fogSquare){
-        InternalBoardSquare fog;
-        fog.applySquareType(FOG);
-        shortboard[2][2] = ExternalBoardSquare(fog);
+    if(isFogSquare){
+        InternalBoardSquare fogSq;
+        fogSq.applySquareType(FOG);
+        shortboard[2][2] = ExternalBoardSquare(fogSq);
     }
     return shortboard;
 }
