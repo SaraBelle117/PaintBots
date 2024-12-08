@@ -62,7 +62,7 @@ class lazyRobot : public IRobotAgent
          */
         virtual void setRobotColor(Robot::RobotColor c)
         {
-
+            //TODO
         }
 
 };

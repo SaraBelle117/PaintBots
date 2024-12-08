@@ -26,6 +26,11 @@ IRobotAgent* Robot::getRobotAgent()
 void Robot::setColor(RobotColor col)
 {
     color = col;
+
+    //sets the robot color for the agent
+    if(agent){
+        agent->setRobotColor(col);
+    }
 }
 
 /**
