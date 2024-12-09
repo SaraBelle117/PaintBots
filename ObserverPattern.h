@@ -1,5 +1,6 @@
 #pragma once
 #include "BoardSquare.h"
+#include "Robot.h"
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -10,19 +11,6 @@ enum Event {
     SCORE_UPDATE,
     SQUARE_TYPE
 };
-
-//changed to XRED and XBLUE per the announcement 
-enum RobotColor{XRED, XBLUE};
-
-enum RobotMove{ROTATELEFT, ROTATERIGHT, FORWARD, NONE};
-
-struct RobotMoveRequest
-{
-    RobotColor robot; 
-    RobotMove move;
-    bool shoot;
-};
-
 
 template <class T>
 class ObservableData {

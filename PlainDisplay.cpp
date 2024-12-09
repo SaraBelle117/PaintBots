@@ -117,6 +117,9 @@ void PlainDisplay::display()
         //newline after each row
         cout << endl;
     }
+
+    cout << "RED SCORE: " << gb->redScore() << endl;
+    cout << "BLUE SCORE: " << gb->blueScore() << endl;
 }
 
 

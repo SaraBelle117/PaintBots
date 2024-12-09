@@ -11,6 +11,8 @@ GameBoard* GameBoard::instance = nullptr;
  */
 GameBoard::GameBoard() : board(rows, vector<InternalBoardSquare>(cols))
 {
+    //config = new Config();
+
     //populates boarder of the GameBoard with WALL BoardSquares
     setWalls();
     //populates rocks for the GameBoard using config
@@ -25,8 +27,11 @@ GameBoard::GameBoard() : board(rows, vector<InternalBoardSquare>(cols))
  * Constructs a GameBoard using the specific configuration given
  * @param Config 
  */
-GameBoard::GameBoard(Config config): board(rows, vector<InternalBoardSquare>(cols))
+GameBoard::GameBoard(Config c): board(rows, vector<InternalBoardSquare>(cols))
 {
+    //sets the configuration
+    config = c;
+
     //populates boarder of the GameBoard with WALL BoardSquares
     setWalls();
     //populates rocks for the GameBoard using config
@@ -267,10 +272,14 @@ void GameBoard::setFogs()
         if(board[p.x][p.y].getSquareType() == ROCK){
             board[p.x][p.y].applySquareType(FOGANDROCK);
             notifySquareTypeChange(p, FOGANDROCK);
+            //saves location of fog square
+            fogsquares.emplace_back(p);
         }
         else{
             board[p.x][p.y].applySquareType(FOG);
             notifySquareTypeChange(p, FOG);
+            //saves location of fog square
+            fogsquares.emplace_back(p);
         }
 
     }
@@ -660,4 +669,47 @@ Location GameBoard::getNextPosition(Location point, Direction dir){
 bool GameBoard::checkBounds(int x, int y)
 {
     return (x >= 1 && x <= playable_rows && y >= 1 && y <= playable_cols);
+}
+
+/**
+ * Helper method for randomizing one fog square (after each Robot Move)
+ */
+void GameBoard::randomizeFog()
+{
+    //sets fogToMove as the location of a random index in our list of fog squares
+    int index = rand() % fogsquares.size();
+    Location fogToMove = fogsquares[index];
+
+    if(board[fogToMove.x][fogToMove.y].getSquareType() == FOG){
+        //old fog square is now empty
+        board[fogToMove.x][fogToMove.y].applySquareType(EMPTY);
+        //notifies observers
+        notifySquareTypeChange(fogToMove, EMPTY);
+    }
+    else if(board[fogToMove.x][fogToMove.y].getSquareType() == FOGANDROCK){
+        //or old fog square is now just a rock
+        board[fogToMove.x][fogToMove.y].applySquareType(ROCK);
+        //notifies observers
+        notifySquareTypeChange(fogToMove, ROCK);
+    }
+
+    //remove from list of fog squares
+    fogsquares.erase(fogsquares.begin() + index);
+
+    //finds new valid position for the fog square
+    Location pos;
+
+    do{
+        pos.x = RAND_IN_RANGE(1, 15);
+        pos.y = RAND_IN_RANGE(1, 15);
+    } while (board[pos.x][pos.y].getSquareType() != EMPTY );
+
+    //places fog on the board
+    board[pos.x][pos.y].applySquareType(FOG);
+
+    //notifies observers
+    notifySquareTypeChange(pos, FOG);
+
+    //adds the new position to our list
+    fogsquares.emplace_back(pos);
 }

@@ -215,9 +215,16 @@ class AntiRandom : public IRobotAgent
          */
         virtual RobotMoveRequest* getMove(ExternalBoardSquare** srs, ExternalBoardSquare** lrs)
         {
-            /**
-             * TODO: 
-             */
+            RobotMoveRequest* mr = new RobotMoveRequest();
+
+            //random robot never attemps shooting, so we will
+            mr->shoot = true;
+
+            mr->robot = color;
+
+            //TODO
+
+            return mr;
         }
 
 

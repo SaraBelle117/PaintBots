@@ -26,6 +26,9 @@ class GameBoard : public Observable<GameBoard> {
         vector<vector<InternalBoardSquare>> board;
         Config config;
 
+        //for tracking fogsquares on the board
+        vector<Location> fogsquares;
+
         Robot blue;
         Robot red;
 
@@ -122,6 +125,8 @@ class GameBoard : public Observable<GameBoard> {
         void setRobotPaintColor(Robot::RobotColor robot, SquareColor sc);
         ExternalBoardSquare** getLongRangeScan();
         ExternalBoardSquare** getShortRangeScan(Robot::RobotColor rc);
+        //helper methods (written for GameLogic, Part C)
+        void randomizeFog();
 
 
 };

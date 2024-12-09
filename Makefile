@@ -1,4 +1,4 @@
-all: ConfigTest InternalBoardSquareTest ExternalBoardSquareTest BoardSquareTest GameBoardTest
+all: ConfigTest InternalBoardSquareTest ExternalBoardSquareTest BoardSquareTest GameBoardTest paintbots
 
 ConfigTest: Config.cpp ConfigTest.cpp
 	g++ -Wall -g -std=c++11 -o ConfigTest Config.cpp ConfigTest.cpp
@@ -15,5 +15,7 @@ BoardSquareTest: BoardSquareTest.cpp BoardSquare.cpp
 GameBoardTest: GameBoardTest.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp BoardSquare.cpp PlainDisplay.cpp
 	g++ -Wall -g -std=c++11 -o GameBoardTest GameBoardTest.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp BoardSquare.cpp PlainDisplay.cpp
 
+paintbots: GameLogic.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp PlainDisplay.cpp Robot.cpp
+	g++ -Wall -g -std=c++11 -o paintbots GameLogic.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp PlainDisplay.cpp Robot.cpp
 clean:
-	rm -f display ConfigTest InternalBoardSquareTest ExternalBoardSquareTest BoardSquareTest GameBoardTest *.o
+	rm -f display ConfigTest InternalBoardSquareTest ExternalBoardSquareTest BoardSquareTest GameBoardTest paintbots *.o
