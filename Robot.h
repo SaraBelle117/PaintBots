@@ -7,24 +7,28 @@ enum RobotMove{ROTATELEFT, ROTATERIGHT, FORWARD, NONE};
 
 
 class Robot
-{
-    private:
-        IRobotAgent* agent;
-        
+{       
     public: 
-        //TODO -- need to be private?
         enum RobotColor{RED, BLUE};
         SquareColor paintcolor;
         int paintblobs;
         int longrange;
 
-        
+        //default constructor
+        Robot();
+        void setRobotAgent(IRobotAgent* a);
+        IRobotAgent *getRobotAgent();
+        void setColor(RobotColor);
+        RobotColor getRobotColor();
 
+    private:
+        IRobotAgent* agent;
+        RobotColor color;
 
 };
 
 struct RobotMoveRequest {
-            Robot::RobotColor robot; 
-            RobotMove move;
-            bool shoot;
-        };
+    Robot::RobotColor robot; 
+    RobotMove move;
+    bool shoot;
+};

@@ -1,5 +1,25 @@
 #include "Robot.h"
+#include "IRobotAgent.h"
+#include "RobotAgent.h"
 using namespace std;
+
+/**
+ * Default constructor -- creates a red lazyRobot 
+ */
+Robot::Robot()
+{
+    //sets robot's color as RED
+    color = RED;
+
+    //set's the robot's agent as a LazyRobot
+    agent = new lazyRobot();
+    
+    //set's agent color as our robot's color
+    agent->setRobotColor(color);
+    
+    //adds the agent to the roster
+    RobotAgentRoster::getInstance()->add(agent);
+}
 
 /**
  * Sets the given Robot agent
@@ -8,6 +28,11 @@ using namespace std;
 void Robot::setRobotAgent(IRobotAgent* a)
 {
     agent = a;
+
+    if(agent){
+        //ensures the color is updated correctly
+        agent->setRobotColor(color);
+    }
 }
 
 /**

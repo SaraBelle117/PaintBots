@@ -3,15 +3,21 @@
 using namespace std;
 
 /**
- * Constructs a game
+ * Constructs a new game - sets up the internal state
+ * (initializes to null)
 ) */
 GameLogic::GameLogic() 
 {
-    //TODO
+    gameboard = nullptr;
+    red = nullptr;
+    blue = nullptr;
+    pause = false;
 }
 
 /**
- * TODO
+ * Plays the game PaintBots
+ * @param string boardconfig
+ * @param string robotconfig
  */
 void GameLogic::playGame(string boardconfig, string robotconfig)
 {
@@ -19,11 +25,13 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
 }
 
 /**
- * TODO
+ * Pauses the game after a move for each Robot
+ * (if enabled)
+ * @param bool pausemode
  */
 void GameLogic::setPause(bool pausemode)
 {
-    //TODO
+    pause = pausemode;
 }
 
 //sets the instance before main is called
