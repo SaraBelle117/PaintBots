@@ -15,109 +15,6 @@ class IRobotAgent{
         virtual void setRobotColor(Robot::RobotColor c) = 0;
 };
 
-/**
- * LAZY ROBOT -- Does not move from the initial square and fires a
- * paintblob each turn ina random direction
- */
-class lazyRobot : public IRobotAgent
-{
-    private:
-        string name = "lazyRobot";
-        string robotcreator = "Sara Theriault";
-
-    public:
-        
-        /**
-         * Returns the name of the given robot
-         * @return string name
-         */
-        virtual string getRobotName()
-        {
-            return name;
-        }
-
-        /**
-         * Returns the name of the given robot creator
-         * @return string name
-         */
-        virtual string getRobotCreator()
-        {
-            return robotcreator;
-        }
-        
-        /**
-         * 
-         */
-        virtual RobotMoveRequest* getMove(ExternalBoardSquare** srs, ExternalBoardSquare** lrs)
-        {
-            RobotMoveRequest* mr;
-
-            //TODO - 
-
-            return mr;
-        }
-
-        /**
-         * Sets the given robot color
-         */
-        virtual void setRobotColor(Robot::RobotColor c)
-        {
-            //TODO
-        }
-
-};
-
-
-/**
- * RANDOM ROBOT -- Moves in a random direction to a legal square
- *  (not a rock or wall, or another robot) and never fires.
- */
-class randomRobot : public IRobotAgent{
-    private:
-        string name = "randomRobot";
-        string robotcreator = "Sara Theriault";
-
-    public:
-        /**
-         * Returns the name of the given robot
-         */
-        virtual string getRobotName()
-        {
-            return name;
-        }
-
-        /**
-         * Returns the name of the given robot creator
-         * @return string name
-         */
-        virtual string getRobotCreator()
-        {
-            return robotcreator;
-        }
-
-        /**
-         * 
-         */
-        virtual RobotMoveRequest* getMove(ExternalBoardSquare** srs, ExternalBoardSquare** lrs)
-        {
-            RobotMoveRequest* mr;
-
-            //TODO - 
-
-            return mr;
-        }
-
-        /**
-         * Sets the given robot color
-         */
-        virtual void setRobotColor(Robot::RobotColor c)
-        {
-            
-        }
-
-
-};
-
 class RobotAgentRoster
 {
     private:
@@ -186,9 +83,5 @@ class RobotAgentRoster
             //if invalid name
             return nullptr;
         }
-
-        /**
-         * 
-         */
 
 };

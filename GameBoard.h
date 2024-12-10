@@ -24,8 +24,7 @@ class GameBoard : public Observable<GameBoard> {
         const int playable_cols = 15;
 
         vector<vector<InternalBoardSquare>> board;
-        Config config;
-
+    
         //for tracking fogsquares on the board
         vector<Location> fogsquares;
 
@@ -114,6 +113,9 @@ class GameBoard : public Observable<GameBoard> {
             }
         }
 
+        Robot::RobotColor winner;
+        Config config;
+
         static GameBoard* getInstance(string password);
         static GameBoard* getInstance(string password, Config config);
         InternalBoardSquare & getSquare(int row, int col);
@@ -127,6 +129,7 @@ class GameBoard : public Observable<GameBoard> {
         ExternalBoardSquare** getShortRangeScan(Robot::RobotColor rc);
         //helper methods (written for GameLogic, Part C)
         void randomizeFog();
+        bool isGameOver();
 
 
 };

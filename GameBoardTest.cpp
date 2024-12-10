@@ -106,18 +106,18 @@ bool GameBoardTest::testMoveRobot()
 
     Location p;
 
-    p = gb->find(XRED);
+    p = gb->find(Robot::RED);
 
     InternalBoardSquare sq = gb->getSquare(p.x, p.y);
     //sq.applyRobotDirection(SOUTH);
-    RobotMoveRequest mr = {XRED, FORWARD, false};
+    RobotMoveRequest mr = {Robot::RED, FORWARD, false};
     bool move = false;
 
     move = gb->moveRobot(mr);
     move = gb->moveRobot(mr);
     move = gb->moveRobot(mr);
 
-    mr.robot = XBLUE;
+    mr.robot = Robot::BLUE;
     move = gb->moveRobot(mr);
 
     if(move){
@@ -225,7 +225,7 @@ bool GameBoardTest::testGetShortRangeScan()
     
     try {
 
-    Location position = gb->find(XBLUE);
+    Location position = gb->find(Robot::BLUE);
 
     //sets some of the surrounding BoardSquares as blue
     gb->setSquareColor(position.x, position.y, BLUE);
@@ -233,7 +233,7 @@ bool GameBoardTest::testGetShortRangeScan()
     gb->setSquareColor(position.x, position.y + 1, BLUE);
 
 
-    ExternalBoardSquare** grid = gb->getShortRangeScan(XBLUE);
+    ExternalBoardSquare** grid = gb->getShortRangeScan(Robot::BLUE);
 
     //displays the grid returns from getShortRangeScan()
     cout << "Printing getShortRangeScan()..." << endl;
@@ -247,11 +247,11 @@ bool GameBoardTest::testGetShortRangeScan()
         return false;
     }
 
-    Location p = gb->find(XRED);
+    Location p = gb->find(Robot::RED);
     InternalBoardSquare& fog = gb->getSquare(p.x, p.y);
     fog.applySquareType(FOG);
 
-    grid = gb->getShortRangeScan(XRED);
+    grid = gb->getShortRangeScan(Robot::RED);
     cout << "Printing getShortRangeScan()..." << endl;
     display.displayScan(grid, 5);
 

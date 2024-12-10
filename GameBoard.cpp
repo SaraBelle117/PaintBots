@@ -52,7 +52,7 @@ void GameBoard::notifySquareColorChange(Location pos, SquareColor col)
 {   
     //creates the union data
     ObservableData<GameBoard>::Data data;
-    data.SquareColorData = {pos, col};
+    data.square_color = {pos, col};
 
     //creates the ObservableData type
     ObservableData<GameBoard> event(SQUARE_COLOR, data);
@@ -70,7 +70,7 @@ void GameBoard::notifyRobotMove(const RobotMoveRequest& mr)
 {
     //creates the union data
     ObservableData<GameBoard>:: Data data;
-    data.robotMoveData = {mr};
+    data.robot_move = {mr};
 
     //creates the ObservableData type
     ObservableData<GameBoard> event(ROBOT_MOVE, data);
@@ -87,7 +87,7 @@ void GameBoard::notifyScoreUpdate(int score)
 {
     //creates the union data
     ObservableData<GameBoard>:: Data data;
-    data.scoreUpdateData = {score};
+    data.score_update = {score};
 
     //creates the ObservableData type
     ObservableData<GameBoard> event(SCORE_UPDATE, data);
@@ -105,7 +105,7 @@ void GameBoard::notifySquareTypeChange(Location position, SquareType sq)
 {
     //creates the union data
     ObservableData<GameBoard>::Data data;
-    data.squareTypeData = {position, sq};
+    data.square_type = {position, sq};
 
     //creates the ObservableData type
     ObservableData<GameBoard> event(SQUARE_TYPE, data);
@@ -640,7 +640,8 @@ Location GameBoard::find(Robot::RobotColor rc)
  * @return Location of the next point on the board (or the same point
  * if the point is invalid)
  */
-Location GameBoard::getNextPosition(Location point, Direction dir){
+Location GameBoard::getNextPosition(Location point, Direction dir)
+{
     switch(dir){
         case NORTH: //move up
             point.y--; 
@@ -678,38 +679,74 @@ void GameBoard::randomizeFog()
 {
     //sets fogToMove as the location of a random index in our list of fog squares
     int index = rand() % fogsquares.size();
-    Location fogToMove = fogsquares[index];
+    Location pos = fogsquares[index];
 
-    if(board[fogToMove.x][fogToMove.y].getSquareType() == FOG){
+    if(board[pos.x][pos.y].getSquareType() == FOG){
         //old fog square is now empty
-        board[fogToMove.x][fogToMove.y].applySquareType(EMPTY);
+        board[pos.x][pos.y].applySquareType(EMPTY);
         //notifies observers
-        notifySquareTypeChange(fogToMove, EMPTY);
+        notifySquareTypeChange(pos, EMPTY);
     }
-    else if(board[fogToMove.x][fogToMove.y].getSquareType() == FOGANDROCK){
+    else if(board[pos.x][pos.y].getSquareType() == FOGANDROCK){
         //or old fog square is now just a rock
-        board[fogToMove.x][fogToMove.y].applySquareType(ROCK);
+        board[pos.x][pos.y].applySquareType(ROCK);
         //notifies observers
-        notifySquareTypeChange(fogToMove, ROCK);
+        notifySquareTypeChange(pos, ROCK);
     }
 
     //remove from list of fog squares
     fogsquares.erase(fogsquares.begin() + index);
 
     //finds new valid position for the fog square
-    Location pos;
+    Location newpos;
 
     do{
-        pos.x = RAND_IN_RANGE(1, 15);
-        pos.y = RAND_IN_RANGE(1, 15);
-    } while (board[pos.x][pos.y].getSquareType() != EMPTY );
+        newpos.x = RAND_IN_RANGE(1, 15);
+        newpos.y = RAND_IN_RANGE(1, 15);
+    } while (board[newpos.x][newpos.y].getSquareType() != EMPTY );
 
     //places fog on the board
-    board[pos.x][pos.y].applySquareType(FOG);
+    board[newpos.x][newpos.y].applySquareType(FOG);
 
     //notifies observers
-    notifySquareTypeChange(pos, FOG);
+    notifySquareTypeChange(newpos, FOG);
 
     //adds the new position to our list
-    fogsquares.emplace_back(pos);
+    fogsquares.emplace_back(newpos);
+}
+
+/**
+ * Checks game ending events, including if the
+ * red and blue robots are on the same square, 
+ * either robot is on a WALL or ROG (or FOGANDROCK)
+ * square 
+ * @return true if game over, otherwise false
+ */
+bool GameBoard::isGameOver()
+{
+    //locates red and blue robots on the board
+    Location red_pos = find(Robot::RED);
+    Location blue_pos = find(Robot::BLUE);
+
+    //if red and blue robot are on same square, game should be over
+    if(red_pos.x == blue_pos.x && red_pos.y == blue_pos.y){
+        //assigns the winner robot
+        winner = (blueScore() > redScore()) ? Robot::BLUE : Robot::RED;
+        return true;
+    }
+
+    //identifies square types for each square the robot is on
+    InternalBoardSquare& red_sq = getSquare(red_pos.x, red_pos.y);
+    InternalBoardSquare& blue_sq = getSquare(blue_pos.x, blue_pos.y);
+
+    if(red_sq.getSquareType() == WALL || red_sq.getSquareType() == FOG || red_sq.getSquareType() == FOGANDROCK){
+            winner = Robot::BLUE;
+            return true;
+    }
+
+    if(blue_sq.getSquareType() == WALL || blue_sq.getSquareType() == ROCK || blue_sq.getSquareType() == FOGANDROCK){
+        winner = Robot::RED;
+        return true;
+    }
+
 }

@@ -22,6 +22,60 @@ Robot::Robot()
 }
 
 /**
+ * Specific constructor
+ * @param RobotColor rc
+ */
+Robot::Robot(RobotColor rc) : color(rc)
+{
+    //TODO
+}
+
+/**
+ * Destructor
+ */
+Robot::~Robot()
+{
+    delete agent;
+}
+
+/**
+ * 
+ */
+void Robot::update(ObservableData<GameBoard> *data)
+{   
+    //updates the last recieved data
+    lastData = data;
+    Event event = data->getEvent();
+
+    if(event == SQUARE_COLOR){
+        //handle square color
+        // = data->getData().squareColorData;
+    }
+    else if(event == ROBOT_MOVE){
+        //handle robot move
+        // = data->getData().robotMoveData;
+    }
+    else if(event == SCORE_UPDATE){
+        //handle score update
+        // = data->getData().scoreUpdataData;
+    }
+    else if(event == SQUARE_TYPE){
+        //handle square type
+        // = data->getData().squareTypeData;
+    }
+}
+
+/**
+ * For getting the last data from the observable
+ * @return ObservableData<GameBoard> lastData 
+ * recieved by the GameBoard
+ */
+ObservableData<GameBoard>* Robot::getLastUpdate()
+{
+    return lastData;
+}
+
+/**
  * Sets the given Robot agent
  * @param IRobotAgent* a
  */

@@ -19,10 +19,14 @@ GameLogic::GameLogic()
 
 /**
  * Destructor for the GameLogic
+ * (cleans up resources once GameLogic
+ * goes out of scope)
  */
 GameLogic::~GameLogic()
 {
-    //TODO::
+    delete red;
+    delete blue;
+    delete gameboard;
 }
 
 /**
@@ -34,9 +38,11 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
 {
     //creates the config with the config file
     Config config(boardconfig.c_str());
+
     //accesses the GameBoard instance
     gameboard = GameBoard::getInstance("xyzzy", config);
 
+    //ensures the robot file is accessed safely
     ifstream robotfile(robotconfig);
     if(!robotfile.is_open()){
         cerr << "Error: could not open robot: " << robotconfig << endl;
@@ -47,6 +53,7 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
 
     //sets first line of file as red robot's strategy
     getline(robotfile, red_strategy_name);
+
     //sets second line of file as blue robot's strategy
     getline(robotfile, blue_strategy_name);
     robotfile.close();
@@ -64,10 +71,63 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
     blue = new Robot();
     blue->setRobotAgent(blue_strategy);
     blue->setColor(Robot::BLUE);
+    
+    //registers the robots as observers
+    gameboard->registerObserver(red);
+    gameboard->registerObserver(blue);
 
+    //initializes game state variables
+    bool gameover = false;
+    Robot* player = red;
+    int moves = 0;
 
+    while(!gameover)
+    {  
+        //fetches short range scan for the robot agent
+        ExternalBoardSquare** srs = gameboard->getShortRangeScan(player->getRobotColor());
+        ExternalBoardSquare** lrs = nullptr;
 
+        //calls longrange scan if player has enough remaining
+        if(player->longrange <= gameboard->config.getLongRangeLimit()){
+             lrs = gameboard->getLongRangeScan();
+             player->longrange++;
+        }
 
+        //fetches move request (lrs is null if not enough calls left)
+        RobotMoveRequest& mr = *player->getRobotAgent()->getMove(srs, lrs);
+
+        //apply the move
+        gameboard->moveRobot(mr);
+
+        if(pause){
+            cout << "Press ENTER to continue." << endl;
+            cin.ignore();
+        }
+
+        //moves one fog square to another empty square
+        gameboard->randomizeFog();
+
+        //switches to the other robot at the end of each move
+        player = (player == red) ? blue : red;
+
+        //for tracking # of moves
+        moves++;
+
+        //game lasts for 300 moves
+        if(moves >= 300) gameover = true;
+
+        //checks game ending events
+        gameover = gameboard->isGameOver();
+    }
+
+    cout << "GAME OVER" << endl;
+
+    if(gameboard->winner == Robot::RED){
+        cout << "RED ROBOT WINS THE GAME!" << endl;
+    }
+    else{
+        cout << "BLUE ROBOT WINS THE GAME!" << endl;
+    }
     
 }
 

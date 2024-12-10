@@ -4,7 +4,8 @@
 #include <iostream>
 using namespace std;
 
-class PlainDisplay : public Observer<GameBoard> {
+class PlainDisplay : public Observer<GameBoard> 
+{
     private:
         GameBoard *gb;
 

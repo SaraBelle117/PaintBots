@@ -222,8 +222,6 @@ class AntiRandom : public IRobotAgent
 
             mr->robot = color;
 
-            //TODO
-
             return mr;
         }
 
