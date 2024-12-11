@@ -1,5 +1,5 @@
 #pragma once
-#include "ObserverPattern.h"
+//#include "ObserverPattern.h"
 #include "InternalBoardSquare.h"
 #include "ExternalBoardSquare.h"
 #include "Config.h"
@@ -43,7 +43,7 @@ class GameBoard : public Observable<GameBoard> {
         //helper methods
 
         //for blueScore() and redScore()
-        int getScore(Robot::RobotColor col);
+        int getScore(RobotColor col);
 
         //for setting walls on the GameBoard
         void setWalls();
@@ -55,7 +55,7 @@ class GameBoard : public Observable<GameBoard> {
         void setRobots();
 
         //finds the BoardSquare that contains the given robot
-        Location find(Robot::RobotColor rc);
+        Location find(RobotColor rc);
 
         //identifies the next position (given direction)
         Location getNextPosition(Location point, Direction dir);
@@ -70,7 +70,7 @@ class GameBoard : public Observable<GameBoard> {
         void notifySquareColorChange(Location pos, SquareColor col);   
 
         //notifies robot move change
-        void notifyRobotMove(const RobotMoveRequest& mr);
+        void notifyRobotMove(Location pos);
 
         //notifies score update change
         void notifyScoreUpdate(int score);
@@ -113,7 +113,7 @@ class GameBoard : public Observable<GameBoard> {
             }
         }
 
-        Robot::RobotColor winner;
+        RobotColor winner;
         Config config;
 
         static GameBoard* getInstance(string password);
@@ -124,9 +124,9 @@ class GameBoard : public Observable<GameBoard> {
         int blueScore();
         int redScore();
         void setSquareColor(int row, int col, SquareColor sc);
-        void setRobotPaintColor(Robot::RobotColor robot, SquareColor sc);
+        void setRobotPaintColor(RobotColor robot, SquareColor sc);
         ExternalBoardSquare** getLongRangeScan();
-        ExternalBoardSquare** getShortRangeScan(Robot::RobotColor rc);
+        ExternalBoardSquare** getShortRangeScan(RobotColor rc);
         //helper methods (written for GameLogic, Part C)
         void randomizeFog();
         bool isGameOver();

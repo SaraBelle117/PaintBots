@@ -1,23 +1,19 @@
 #pragma once
 #include <iostream>
 #include "ObserverPattern.h"
-#include "GameBoard.h"
-#include "BoardSquare.h"
+//#include "GameBoard.h"
 #include "IRobotAgent.h"
 
-enum RobotMove{ROTATELEFT, ROTATERIGHT, FORWARD, NONE};
-
+class GameBoard;
 
 class Robot : public Observer<GameBoard>
-{       
+{ 
+    private:
+        IRobotAgent* agent;
+        RobotColor color;
+        ObservableData<GameBoard> *lastData = nullptr;
+
     public:
-        //for updating the data (to be implemented)
-        virtual void update(ObservableData<GameBoard> *data) override;
-
-        //destructor 
-        virtual ~Robot();
-
-        enum RobotColor{RED, BLUE};
         SquareColor paintcolor;
         int paintblobs;
         int longrange;
@@ -25,8 +21,11 @@ class Robot : public Observer<GameBoard>
         //default constructor
         Robot();
 
-        //specific constructor
-        Robot(RobotColor rc);
+        //destructor 
+        virtual ~Robot();
+
+        //for updating the data (to be implemented)
+        virtual void update(ObservableData<GameBoard> *data) override;
 
         ObservableData<GameBoard> *getLastUpdate();
         void setRobotAgent(IRobotAgent* a);
@@ -34,15 +33,4 @@ class Robot : public Observer<GameBoard>
         void setColor(RobotColor);
         RobotColor getRobotColor();
 
-    private:
-        IRobotAgent* agent;
-        RobotColor color;
-        ObservableData<GameBoard> *lastData = nullptr;
-
-};
-
-struct RobotMoveRequest {
-    Robot::RobotColor robot; 
-    RobotMove move;
-    bool shoot;
 };

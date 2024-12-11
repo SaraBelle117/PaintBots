@@ -22,5 +22,4 @@ class GameLogic
 
         void setPause(bool pausemode);
 
-
 };

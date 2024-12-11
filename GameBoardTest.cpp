@@ -106,18 +106,18 @@ bool GameBoardTest::testMoveRobot()
 
     Location p;
 
-    p = gb->find(Robot::RED);
+    p = gb->find(RobotColor::XRED);
 
     InternalBoardSquare sq = gb->getSquare(p.x, p.y);
     //sq.applyRobotDirection(SOUTH);
-    RobotMoveRequest mr = {Robot::RED, FORWARD, false};
+    RobotMoveRequest mr = {RobotColor::XRED, FORWARD, false};
     bool move = false;
 
     move = gb->moveRobot(mr);
     move = gb->moveRobot(mr);
     move = gb->moveRobot(mr);
 
-    mr.robot = Robot::BLUE;
+    mr.robot = RobotColor::XBLUE;
     move = gb->moveRobot(mr);
 
     if(move){
@@ -225,7 +225,7 @@ bool GameBoardTest::testGetShortRangeScan()
     
     try {
 
-    Location position = gb->find(Robot::BLUE);
+    Location position = gb->find(RobotColor::XBLUE);
 
     //sets some of the surrounding BoardSquares as blue
     gb->setSquareColor(position.x, position.y, BLUE);
@@ -233,7 +233,7 @@ bool GameBoardTest::testGetShortRangeScan()
     gb->setSquareColor(position.x, position.y + 1, BLUE);
 
 
-    ExternalBoardSquare** grid = gb->getShortRangeScan(Robot::BLUE);
+    ExternalBoardSquare** grid = gb->getShortRangeScan(RobotColor::XBLUE);
 
     //displays the grid returns from getShortRangeScan()
     cout << "Printing getShortRangeScan()..." << endl;
@@ -247,11 +247,11 @@ bool GameBoardTest::testGetShortRangeScan()
         return false;
     }
 
-    Location p = gb->find(Robot::RED);
+    Location p = gb->find(RobotColor::XRED);
     InternalBoardSquare& fog = gb->getSquare(p.x, p.y);
     fog.applySquareType(FOG);
 
-    grid = gb->getShortRangeScan(Robot::RED);
+    grid = gb->getShortRangeScan(RobotColor::XRED);
     cout << "Printing getShortRangeScan()..." << endl;
     display.displayScan(grid, 5);
 
@@ -302,9 +302,9 @@ bool GameBoardTest::testObserver()
     }
 
     if(data->getEvent() == SQUARE_COLOR &&
-       data->getData().SquareColorData.pos.x == 1 &&
-       data->getData().SquareColorData.pos.y == 1 &&
-       data->getData().SquareColorData.color == RED){
+       data->getData().square_color.position.x == 1 &&
+       data->getData().square_color.position.y == 1 &&
+       data->getData().square_color.color == RED){
         cout << "Test observer: PASSED" << endl;
         return true;
     }

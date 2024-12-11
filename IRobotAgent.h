@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "ObserverPattern.h"
+#include "BoardSquare.h"
 #include "ExternalBoardSquare.h"
 using namespace std;
 
@@ -12,7 +12,7 @@ class IRobotAgent{
         virtual string getRobotName() = 0;
         virtual string getRobotCreator() = 0;
         virtual RobotMoveRequest* getMove(ExternalBoardSquare** srs, ExternalBoardSquare** lrs) = 0;
-        virtual void setRobotColor(Robot::RobotColor c) = 0;
+        virtual void setRobotColor(RobotColor c) = 0;
 };
 
 class RobotAgentRoster
@@ -77,6 +77,7 @@ class RobotAgentRoster
         {
             for(IRobotAgent* agent : roster){
                 if(agent->getRobotName() == name){
+                    cout << "String name: " << name << endl;
                     return agent;
                 }
             }

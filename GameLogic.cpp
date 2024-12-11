@@ -1,5 +1,5 @@
 #include "GameLogic.h"
-#include "IRobotAgent.h"
+#include "RobotAgent.h"
 #include "Config.h"
 #include <iostream>
 #include <fstream>
@@ -59,18 +59,41 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
     robotfile.close();
 
     //update strategies in roster
-    RobotAgentRoster* roster = RobotAgentRoster::getInstance();
+    RobotAgentRoster* roster = RobotAgentRoster::getInstance();\
+
+    vector<string> strategies = {red_strategy_name, blue_strategy_name};
+    for(const string& strategy : strategies){
+        if(strategy == "LazyRobot"){
+            roster->add(new LazyRobot());
+        }
+        else if(strategy == "RandomRobot"){
+            roster->add(new RandomRobot());
+        }
+        else if(strategy == "AntiRandom"){
+            roster->add(new AntiRandom());
+        }
+        else {
+            cerr << "Error: Unknown strategy: " << strategy << endl;
+            return;
+        }
+    }
 
     IRobotAgent* red_strategy = (*roster)[red_strategy_name];
     IRobotAgent* blue_strategy = (*roster)[blue_strategy_name];
 
+    //if red or blue strategy is null, handle error
+    if(!red_strategy || !blue_strategy){
+        cerr << "Could not read strategy." << endl;
+        return;
+    }
+
     red = new Robot();
     red->setRobotAgent(red_strategy);
-    red->setColor(Robot::RED);
+    red->setColor(RobotColor::XRED);
 
     blue = new Robot();
     blue->setRobotAgent(blue_strategy);
-    blue->setColor(Robot::BLUE);
+    blue->setColor(RobotColor::XBLUE);
     
     //registers the robots as observers
     gameboard->registerObserver(red);
@@ -90,18 +113,23 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
         //calls longrange scan if player has enough remaining
         if(player->longrange <= gameboard->config.getLongRangeLimit()){
              lrs = gameboard->getLongRangeScan();
-             player->longrange++;
+             /**
+              * TODO: FIXME
+              */
+             //player->longrange++;
         }
 
         //fetches move request (lrs is null if not enough calls left)
         RobotMoveRequest& mr = *player->getRobotAgent()->getMove(srs, lrs);
 
         //apply the move
+        cout << "Moving robot.." << endl;
         gameboard->moveRobot(mr);
 
         if(pause){
             cout << "Press ENTER to continue." << endl;
-            cin.ignore();
+            string userinput;
+            getline(cin, userinput);
         }
 
         //moves one fog square to another empty square
@@ -119,10 +147,18 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
         //checks game ending events
         gameover = gameboard->isGameOver();
     }
+    string WINCOLOR;
 
-    cout << "GAME OVER" << endl;
+    if(gameboard->winner == RobotColor::XRED){
+        WINCOLOR += "\033[1;31m";
+    }
+    else{
+        WINCOLOR += "\033[1;34m";
+    }
 
-    if(gameboard->winner == Robot::RED){
+    cout << WINCOLOR <<  "GAME OVER" << endl;
+
+    if(gameboard->winner == RobotColor::XRED){
         cout << "RED ROBOT WINS THE GAME!" << endl;
     }
     else{
@@ -140,9 +176,6 @@ void GameLogic::setPause(bool pausemode)
 {
     pause = pausemode;
 }
-
-//sets the instance before main is called
-RobotAgentRoster* RobotAgentRoster::instance = nullptr;
 
 int main(int argc, char* argv[])
 {

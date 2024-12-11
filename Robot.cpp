@@ -1,19 +1,15 @@
 #include "Robot.h"
-#include "IRobotAgent.h"
 #include "RobotAgent.h"
 using namespace std;
 
 /**
  * Default constructor -- creates a red lazyRobot 
  */
-Robot::Robot()
-{
-    //sets robot's color as RED
-    color = RED;
+Robot::Robot() : color(XRED), lastData(nullptr), paintblobs(0), longrange(0)
+{   
+    //sets robot agent
+    agent = new LazyRobot();
 
-    //set's the robot's agent as a LazyRobot
-    agent = new lazyRobot();
-    
     //set's agent color as our robot's color
     agent->setRobotColor(color);
     
@@ -22,20 +18,11 @@ Robot::Robot()
 }
 
 /**
- * Specific constructor
- * @param RobotColor rc
- */
-Robot::Robot(RobotColor rc) : color(rc)
-{
-    //TODO
-}
-
-/**
  * Destructor
  */
 Robot::~Robot()
 {
-    delete agent;
+    delete lastData;
 }
 
 /**
@@ -48,7 +35,6 @@ void Robot::update(ObservableData<GameBoard> *data)
     Event event = data->getEvent();
 
     if(event == SQUARE_COLOR){
-        //handle square color
         // = data->getData().squareColorData;
     }
     else if(event == ROBOT_MOVE){
@@ -116,7 +102,7 @@ void Robot::setColor(RobotColor col)
  * Gets the robot's color
  * @return RobotColor col
  */
-Robot::RobotColor Robot::getRobotColor()
+RobotColor Robot::getRobotColor()
 {
     return color;
 }
