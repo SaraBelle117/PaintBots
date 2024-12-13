@@ -13,6 +13,8 @@ class LazyRobot : public IRobotAgent
         string name = "LazyRobot";
         string robotcreator = "Sara Theriault";
         RobotColor color;
+        Location pos;
+        Location enemypos;
 
     public:
 
@@ -46,6 +48,21 @@ class LazyRobot : public IRobotAgent
             color = c;
         }
 
+        /**
+         * Updates the robot on the most recent robot
+         * moves on the board
+         * @param Location position
+         * @param RobotColor color
+         */
+        virtual void getRobotMoveUpdate(Location position, RobotColor col)
+        {
+            if(col == color){
+                pos = position;
+            }
+            else{
+                enemypos = position;
+            }
+        }   
 };
 
 
@@ -58,8 +75,11 @@ class RandomRobot : public IRobotAgent{
         string name = "RandomRobot";
         string robotcreator = "Sara Theriault";
         RobotColor color;
+        Location pos;
+        Location enemypos;
 
     public:
+
         //implemented in .cpp file
         virtual RobotMoveRequest* getMove(ExternalBoardSquare** srs, ExternalBoardSquare** lrs);
 
@@ -90,6 +110,21 @@ class RandomRobot : public IRobotAgent{
             color = c;
         }
 
+        /**
+         * Updates the robot on the most recent robot
+         * moves on the board
+         * @param Location position
+         * @param RobotColor color
+         */
+        virtual void getRobotMoveUpdate(Location position, RobotColor col)
+        {
+            if(col == color){
+                pos = position;
+            }
+            else{
+                enemypos = position;
+            }
+        }
 
 };
 
@@ -104,11 +139,13 @@ class AntiRandom : public IRobotAgent
         RobotColor color;
         ExternalBoardSquare** lastlrs;
         vector<RobotMove> moves;
+        Location pos;
+        Location enemypos;
+        
 
         enum Group {QUADRANT1, QUADRANT2, QUADRANT3, QUADRANT4};
 
     public:
-
         //implemented in .cpp file
         virtual RobotMoveRequest* getMove(ExternalBoardSquare** srs, ExternalBoardSquare** lrs); 
         
@@ -161,6 +198,22 @@ class AntiRandom : public IRobotAgent
         virtual void setRobotColor(RobotColor c)
         {
             color = c;
+        }
+
+        /**
+         * Updates the robot on the most recent robot
+         * moves on the board
+         * @param Location position
+         * @param RobotColor color
+         */
+        virtual void getRobotMoveUpdate(Location position, RobotColor col)
+        {
+            if(col == color){
+                pos = position;
+            }
+            else{
+                enemypos = position;
+            }
         }
 
 };

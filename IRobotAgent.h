@@ -13,6 +13,7 @@ class IRobotAgent{
         virtual string getRobotCreator() = 0;
         virtual RobotMoveRequest* getMove(ExternalBoardSquare** srs, ExternalBoardSquare** lrs) = 0;
         virtual void setRobotColor(RobotColor c) = 0;
+        virtual void getRobotMoveUpdate(Location position, RobotColor col) = 0;
 };
 
 class RobotAgentRoster

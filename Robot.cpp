@@ -18,7 +18,7 @@ Robot::Robot() : color(XRED), lastData(nullptr), paintblobs(0), longrange(0)
 }
 
 /**
- * Destructor
+ * Destructor (frees memory)
  */
 Robot::~Robot()
 {
@@ -26,25 +26,23 @@ Robot::~Robot()
 }
 
 /**
- * 
+ * updates the Robot on game state changes (from GameBoard)
+ * @param Observable<Data> *data
  */
 void Robot::update(ObservableData<GameBoard> *data)
 {   
     //updates the last recieved data
     lastData = data;
+    //fetches the event type
     Event event = data->getEvent();
 
-    //handles event types
-    if(event == SQUARE_COLOR){
-        //auto square_color = data->getData().square_color;
-    }
-    else if(event == ROBOT_MOVE){
-        //updates enemy robot's location
-        //auto robotmove = data->getData().robot_move;
-    }
-    else if(event == SQUARE_TYPE){
-        //auto squaretype = data->getData().square_type;
-
+    if(data->getEvent() == ROBOT_MOVE){
+        //ensures we are accessing a valid agent 
+        if(agent){
+            auto robotmove = data->getData().robot_move;
+            //updates the robot's new position on the board 
+            agent->getRobotMoveUpdate(robotmove.position, robotmove.color);
+        }
     }
 }
 
@@ -103,4 +101,3 @@ RobotColor Robot::getRobotColor()
 {
     return color;
 }
-

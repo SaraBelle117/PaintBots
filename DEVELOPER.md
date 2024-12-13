@@ -52,7 +52,7 @@ ObservableData: there are three notable changes in the game state -- when the sc
 
 - RobotAgent: [AS-A] IRobotAgent -- contains "LazyRobot", "RandomRobot", "AntiRandom". 
 
-- RobotAgentRoster: Roster to hold the data for the RobotAgents. 
+- RobotAgentRoster: Roster to hold the data for the RobotAgents.
 
 
 ## Challenges Encountered

@@ -18,7 +18,7 @@ class Robot : public Observer<GameBoard>
         int paintblobs;
         int longrange;
 
-        //default constructor
+        //default constructor (implemented in .cpp file)
         Robot();
 
         //destructor 
