@@ -70,10 +70,7 @@ class GameBoard : public Observable<GameBoard> {
         void notifySquareColorChange(Location pos, SquareColor col);   
 
         //notifies robot move change
-        void notifyRobotMove(Location pos);
-
-        //notifies score update change
-        void notifyScoreUpdate(int score);
+        void notifyRobotMove(Location pos, RobotColor col);
 
         //notifies SquareType change
         void notifySquareTypeChange(Location position, SquareType sq);
@@ -115,6 +112,7 @@ class GameBoard : public Observable<GameBoard> {
 
         RobotColor winner;
         Config config;
+        bool GameOver; 
 
         static GameBoard* getInstance(string password);
         static GameBoard* getInstance(string password, Config config);
