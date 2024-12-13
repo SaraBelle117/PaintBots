@@ -1,5 +1,6 @@
 #include "GameLogic.h"
 #include "RobotAgent.h"
+#include "PlainDisplay.h"
 #include "Config.h"
 #include <iostream>
 #include <fstream>
@@ -15,6 +16,8 @@ GameLogic::GameLogic()
     red = nullptr;
     blue = nullptr;
     pause = false;
+    red_lrs = false;
+    blue_lrs = false;
 }
 
 /**
@@ -24,9 +27,7 @@ GameLogic::GameLogic()
  */
 GameLogic::~GameLogic()
 {
-    delete red;
-    delete blue;
-    delete gameboard;
+    //delete gameboard;
 }
 
 /**
@@ -36,6 +37,15 @@ GameLogic::~GameLogic()
  */
 void GameLogic::playGame(string boardconfig, string robotconfig)
 {
+    printf("\n\n\n\n");
+    PlainDisplay::titleScreen();
+    printf("\n\n\n\n");
+
+    //waits for user input
+    cout << "Press ENTER to play the game." << endl;
+    string userinput;
+    getline(cin, userinput);
+
     //creates the config with the config file
     Config config(boardconfig.c_str());
 
@@ -104,30 +114,55 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
     Robot* player = red;
     int moves = 0;
 
-    while(!gameover)
+    while(!gameover && moves < 300)
     {  
+        //for tracking # of moves
+        moves++;
+
         //fetches short range scan for the robot agent
         ExternalBoardSquare** srs = gameboard->getShortRangeScan(player->getRobotColor());
         ExternalBoardSquare** lrs = nullptr;
 
-        //calls longrange scan if player has enough remaining
-        if(player->longrange <= gameboard->config.getLongRangeLimit()){
-             lrs = gameboard->getLongRangeScan();
-             /**
-              * TODO: FIXME
-              */
-             //player->longrange++;
+        //if the player requested lrs on their last move (and has enough calls left)
+        if(player == red && red_lrs  && player->longrange <= gameboard->config.getLongRangeLimit()){
+            //fetches the long range scan
+            lrs = gameboard->getLongRangeScan();
+            //increments # of long range scans
+            player->longrange++;
+            //resets variable
+            red_lrs = false;
+        }
+
+        if(player == blue && blue_lrs && player->longrange <= gameboard->config.getLongRangeLimit()){
+            //fetches long range scan
+            lrs = gameboard->getLongRangeScan();
+            //increments # of scans
+            player->longrange++;
+            blue_lrs = false;
         }
 
         //fetches move request (lrs is null if not enough calls left)
         RobotMoveRequest& mr = *player->getRobotAgent()->getMove(srs, lrs);
 
-        //apply the move
-        cout << "Moving robot.." << endl;
-        gameboard->moveRobot(mr);
+        //checks if the player requested a long range scan (in the previous move)
+        if(mr.lrs){
+            if(player == red){
+                red_lrs = true;
+            }
+            else{
+                blue_lrs = true;
+            }
+        }
 
+        //apply the move & and check game ending events
+        gameover = gameboard->moveRobot(mr);
+
+        //checks game ending events
+        gameover = gameboard->isGameOver();
+
+        //pauses the game (until user provides input)
         if(pause){
-            cout << "Press ENTER to continue." << endl;
+            cout << "Press ANYTHING to continue." << endl;
             string userinput;
             getline(cin, userinput);
         }
@@ -137,34 +172,26 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
 
         //switches to the other robot at the end of each move
         player = (player == red) ? blue : red;
-
-        //for tracking # of moves
-        moves++;
-
-        //game lasts for 300 moves
-        if(moves >= 300) gameover = true;
-
-        //checks game ending events
-        gameover = gameboard->isGameOver();
     }
-    string WINCOLOR;
+
+    string winner;
+    string winningcolor;
 
     if(gameboard->winner == RobotColor::XRED){
-        WINCOLOR += "\033[1;31m";
+        winningcolor += PlainDisplay::REDBOLD;
+        winner += "RED";
     }
-    else{
-        WINCOLOR += "\033[1;34m";
+    else if(gameboard->winner == RobotColor::XBLUE){
+        winningcolor += PlainDisplay::BLUEBOLD;
+        winner += "BLUE";
+    }
+    else {
+        winner += "NOBODY.... (aka, something went quite wrong).";
     }
 
-    cout << WINCOLOR <<  "GAME OVER" << endl;
-
-    if(gameboard->winner == RobotColor::XRED){
-        cout << "RED ROBOT WINS THE GAME!" << endl;
-    }
-    else{
-        cout << "BLUE ROBOT WINS THE GAME!" << endl;
-    }
-    
+    cout << winningcolor <<  "GAME OVER" << endl;
+    cout << "THE " << winner << " ROBOT WINS THE GAME!" << PlainDisplay::RESET <<endl;
+    printf("\n\n");
 }
 
 /**

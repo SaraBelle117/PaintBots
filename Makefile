@@ -12,10 +12,10 @@ ExternalBoardSquareTest: ExternalBoardSquareTest.cpp ExternalBoardSquare.cpp Boa
 BoardSquareTest: BoardSquareTest.cpp BoardSquare.cpp 
 	g++ -Wall -g -std=c++11 -o BoardSquareTest BoardSquareTest.cpp BoardSquare.cpp
 
-GameBoardTest: GameBoardTest.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp BoardSquare.cpp PlainDisplay.cpp
-	g++ -Wall -g -std=c++11 -o GameBoardTest GameBoardTest.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp BoardSquare.cpp PlainDisplay.cpp
+GameBoardTest: GameBoardTest.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp BoardSquare.cpp PlainDisplay.cpp Robot.cpp RobotAgent.cpp
+	g++ -Wall -g -std=c++11 -o GameBoardTest GameBoardTest.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp BoardSquare.cpp PlainDisplay.cpp Robot.cpp RobotAgent.cpp 
 
-paintbots: GameLogic.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp PlainDisplay.cpp Robot.cpp
-	g++ -Wall -g -std=c++11 -o paintbots GameLogic.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp PlainDisplay.cpp Robot.cpp
+paintbots: GameLogic.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp PlainDisplay.cpp Robot.cpp RobotAgent.cpp BoardSquare.cpp
+	g++ -Wall -g -std=c++11 -o paintbots GameLogic.cpp GameBoard.cpp Config.cpp ExternalBoardSquare.cpp InternalBoardSquare.cpp PlainDisplay.cpp Robot.cpp RobotAgent.cpp BoardSquare.cpp
 clean:
 	rm -f display ConfigTest InternalBoardSquareTest ExternalBoardSquareTest BoardSquareTest GameBoardTest paintbots *.o
