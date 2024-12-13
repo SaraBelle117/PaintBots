@@ -24,17 +24,8 @@ RobotMoveRequest* LazyRobot::getMove(ExternalBoardSquare** srs, ExternalBoardSqu
     //sets the given robot's color
     mr->robot = color;
 
-    //chooses a random number (0 or 1)
-    bool randRotate = rand() % 2;
-
-    //if randRotate = 1, ROTATELEFT
-    if(randRotate == 1){
-        mr->move = ROTATELEFT;
-    }
-    else{
-    //otherwise, ROTATERIGHT
-        mr->move = ROTATERIGHT;
-    }
+    //randomly selects a move (between rotateleft and rotateright)
+    mr->move = (rand() % 2 == 0) ? ROTATELEFT : ROTATERIGHT;
 
     return mr;
 }
@@ -94,118 +85,95 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
     //attempts to shoot a paintblob
     mr->shoot = true;
     mr->robot = color;
+
+    //updates our short range scan 
+    updateShortRangeScan(srs);
+
+    //always to do a long range scan
+    mr->lrs = true;
     
     //check there are no moves decided already
     if(!moves.empty()){
         //grabs next move from the vector
-        mr->move = moves.front();
-
-        //removes the first index (which we just used) from the vector
+        RobotMove potentialMove = moves.front();
         moves.erase(moves.begin());
 
+        Location nextPos = getNextPos(pos, rotate(srs[2][2].robotDirection(), potentialMove));
+
+        if(isInBounds(nextPos) && !isBoundary(map[nextPos.x][nextPos.y].type)){
+            mr->move = potentialMove;
+        }
+        else{
+            moves.clear();
+            if(lrs){
+                mr->move = findPath(lrs);
+            }
+            else{
+                mr->move = autoPilot();
+            }
+        }
     }
     else if(lrs){
-        lastlrs = lrs;
         mr->move = findPath(lrs);
         mr->lrs = false;
     }
-    else if(isCorner(srs)){
-        mr->move = escapeCorner(srs);
-    }
-    else{
-        mr->move = determineMove(srs);
+    else {
+        mr->move = autoPilot();
+        //attempt to do a better move next time...
+        mr->lrs = true;
     }
 
     return mr;
 }
 
-RobotMove AntiRandom::determineMove(ExternalBoardSquare** srs)
+/**
+ * The "auto" move for the AntiRandom Robot
+ * Only triggered in certain events, and when
+ * we do not have access to the full board
+ */
+RobotMove AntiRandom::autoPilot()
 {
-    Direction dir = srs[2][2].robotDirection();
-    SquareType type = srs[2][2].getSquareType();
-
-    //if we are on a square thats a fog, our vision is impaired 
-    if(type == FOG || type == FOGANDROCK){
-        return ROTATERIGHT;
+    cout << "Autopiloting............" << endl;
+    //if the short range scan is not available, return this move as a safety precaution
+    if(!shortboard){
+        return ROTATELEFT;
     }
+
+    //sets the Squarecolor (corresponding to our robot's color)
+    //SquareColor squarecolor = (color == XRED) ? RED : BLUE;
+
+    Direction dir = shortboard[2][2].robotDirection();
+    //SquareType type = shortboard[2][2].getSquareType();
     
-    //sets the Squarecolor 
-    SquareColor squarecolor = (color == XRED) ? RED : BLUE;
+    //access map data (if available)
+    for(RobotMove move : {FORWARD, ROTATELEFT, ROTATERIGHT}){
+        Location nextpos = getNextPos(pos, dir);
 
-    ExternalBoardSquare sq;
+        if(move != FORWARD){
+            dir = rotate(shortboard[2][2].robotDirection(), move);
+        }
 
-    //check surrounding squares
-    switch(dir){
-        case NORTH:
-            //checks the square directly above
-            sq = srs[1][2];
-            if(!isBoundary(sq.getSquareType())){
-                //square is not a ROCK, or WALL, and not our color already, so FORWARD is good move
-                return FORWARD;
-            }
-            else{
-                //if quadrant 2 is safer than quadrant 1, turn towards that group
-                if(checkDangerLevel(srs, QUADRANT2) < checkDangerLevel(srs, QUADRANT1)){
-                    return ROTATELEFT;
-                }
-                else{
-                    return ROTATERIGHT;
-                }
-            }
-            break;
-        case SOUTH:
-            //checks the square directly below
-            sq = srs[3][2];
-            if(!isBoundary(sq.getSquareType()) && sq.getSquareColor() != squarecolor){
-                return FORWARD;
-            }
-            else{
-                //if quadrant 3 is safer than 4, turn towards that group 
-                if(checkDangerLevel(srs, QUADRANT3) < checkDangerLevel(srs, QUADRANT4)){
-                    return ROTATERIGHT;
-                }
-                else{
-                    return ROTATELEFT;
-                }
-            }
-            break;
-        case WEST:
-            //checks the square to the left
-            sq = srs[2][1];
-            if(!isBoundary(sq.getSquareType()) && sq.getSquareColor() != squarecolor){
-                return FORWARD;
-            }
-            else{
-                //if quadrant 2 is safer than 3, turn towards that group
-                if(checkDangerLevel(srs, QUADRANT2) < checkDangerLevel(srs, QUADRANT3)){
-                    return ROTATERIGHT;
-                }
-                else {
-                    return ROTATELEFT;
-                }
-            }
-            break;
-        case EAST:
-            sq = srs[2][3];
-            if(!isBoundary(sq.getSquareType()) && sq.getSquareColor() != squarecolor){
-                return FORWARD;
-            }
-            else{
-                //if quadrant 1 is safer than 4, turn towards that group
-                if(checkDangerLevel(srs, QUADRANT1) < checkDangerLevel(srs, QUADRANT4)){
-                    return ROTATELEFT;
-                }
-                else{
-                    return ROTATERIGHT;
-                }
-            }
-            break;
+        //skips invalid points
+        if(nextpos.x == -1 && nextpos.y == -1){
+            continue;
+        }
+
+        if(isBoundary(map[nextpos.x][nextpos.y].type) || map[nextpos.x][nextpos.y].type == WALL){
+            continue;
+        }
+
+        //prioritizes squares we have not yet visited
+        if(map[nextpos.x][nextpos.y].marked){
+            continue;
+        }
+        //mark square as visited
+        map[nextpos.x][nextpos.y].marked = true;
+        return move;
     }
-}
 
-bool AntiRandom::isBoundary(SquareType s)
-{
-    return (s == ROCK || s == WALL || s == FOGANDROCK);
+    //if no valid moves, throw a hail mary
+    return hailMary(dir);
+   
 }
 
 /**
@@ -251,177 +219,99 @@ int AntiRandom::checkDangerLevel(ExternalBoardSquare** srs, Group quadrant)
 }
 
 /**
- * Checks if we are in a corner of the board
- * (or cornered by rocks)
- * @param ExternalBoardSquare** srs 
- * @return true if in corner, otherwise false
- */
-int AntiRandom::isCorner(ExternalBoardSquare** srs)
-{
-    int blocks = 0;
-    //checks if the surrounding squares are blocked
-    if(isBoundary(srs[1][2].getSquareType())) blocks++;
-    if(isBoundary(srs[3][2].getSquareType())) blocks++;
-    if(isBoundary(srs[2][1].getSquareType())) blocks++;
-    if(isBoundary(srs[2][3].getSquareType())) blocks++;
-
-    //true if 3 or more blocks are detected (corner found)
-    return(blocks >= 2);
-
-}
-
-/**
- * Establishes a corresponding move if we are in a corner square
- * @param ExternalBoardsquare** srs
- */
-RobotMove AntiRandom::escapeCorner(ExternalBoardSquare** srs)
-{
-    //grabs robot's current direction
-    Direction dir = srs[2][2].robotDirection();
-
-    //establishes square types of surrounding squares
-    SquareType northsq = srs[1][2].getSquareType();
-    SquareType southsq = srs[3][2].getSquareType();
-    SquareType eastsq = srs[2][3].getSquareType();
-    SquareType westsq = srs[2][1].getSquareType();
-
-    /**
-     * TODO: Edit so that we use the direction to determine the next move on the board 
-     */
-
-    if(!isBoundary(northsq)){
-        //set next move as forward
-        moves.push_back(FORWARD);
-        return dir == NORTH ? FORWARD : ROTATERIGHT;
-    }
-    else if(!isBoundary(southsq)){
-        moves.push_back(FORWARD);
-        return dir == SOUTH ? FORWARD: ROTATELEFT;
-    }
-    else if(!isBoundary(eastsq)){
-        moves.push_back(FORWARD);
-        return dir == EAST ? FORWARD : ROTATERIGHT;
-    }
-    else if(!isBoundary(westsq)){
-        moves.push_back(FORWARD);
-        return dir == WEST ? FORWARD : ROTATELEFT;
-    }
-    /*
-    //found right corner of the board
-    if(isBoundary(northsq) && isBoundary(eastsq) && isBoundary(srs[1][1].getSquareType())){
-        if(dir == NORTH){
-            //next 3 moves should be: ROTATERIGHT, ROTATERIGHT, and FORWARD
-            moves.push_back(ROTATERIGHT);
-            moves.push_back(FORWARD);
-            return ROTATERIGHT;
-        }
-        else if(dir == SOUTH){
-            return FORWARD;
-        }
-        else if(dir == EAST){
-            moves.push_back(FORWARD);
-            return ROTATELEFT;
-        }
-        else if(dir == WEST){
-            moves.push_back(FORWARD);
-            return ROTATERIGHT;
-        }
-        //return ROTATERIGHT;
-    }
-    else{
-        return ROTATELEFT;
-    } */
-
-}
-
-/**
  * Determines move if we have access to long range scan
  * @param ExternalBoardSquare** lrs
  * @return RobotMove 
  */
 RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
-{   
+{ 
+    cout << "Finding path............" << endl;
+    //updates our map
+    updateMap(lrs);
+
     //initially, RobotMove is none
     RobotMove move = NONE;
+
     //for holding the maximum possible score
     int maxScore = -1;
 
     //locates our robot's position on the board, & identifies position
-    Location pos = findRobot(lrs, color);
-    Direction dir = lrs[pos.x][pos.y].robotDirection();
+    Location position = findRobot(lrs, color);
+
+    if(!isInBounds(position)){
+        //if position could not be verified, default to autopilot 
+        return autoPilot();
+    }
+    //update our map
+    map[position.x][position.y].marked = true;
+
+    Direction dir = lrs[position.x][position.y].robotDirection();
+
+    //to hold possible moves
+    vector<RobotMove> bestPath;
 
     //assigns corresponding square color
-    SquareColor squarecolor = (color == XRED) ? RED : BLUE;
+    //SquareColor squarecolor = (color == XRED) ? RED : BLUE;
 
-    //for tracking possible score
-    int score = 0;
+    for(RobotMove possibleMove : {FORWARD, ROTATELEFT, ROTATERIGHT}){
+        //vector to hold possible moves
+        vector<RobotMove> tempmoves;
+        Location nextpos = position;
+        Direction nextdir = dir;
 
-    //while we are still on the bounds of the board
-    while(pos.x >= 0 && pos.x < 17 && pos.y >= 0 && pos.y < 17){
-        SquareType t = lrs[pos.x][pos.y].getSquareType();
-        SquareColor sc = lrs[pos.x][pos.y].getSquareColor();
-
-        //stops on boundaries or squares already painted in our color
-        if(isBoundary(t) || sc == squarecolor) break;
-            
-        //add to score for unpainted squares
-        if(sc == WHITE) score++;
-
-        //move further in corresponding direction
-        pos = getNextPos(pos, dir);
-    }
-        
-        //updates the maximum possible score
-    if(score > maxScore){
-        maxScore = score;
-        move = FORWARD;
-    }
-
-    //prioritizing exploring the board if no FORWARD moves found (chooses randomly between directions)
-    if(move == NONE){
-        move = (rand() % 2 == 0) ? ROTATELEFT : ROTATERIGHT;
-    }
-
-    return move;
-}
-
-/**
- * Helper method for finding robot on the board
- * @param ExternalBoardSquare** lrs
- * @return Location of the robot on the board
- */
-Location AntiRandom::findRobot(ExternalBoardSquare** lrs, RobotColor rc)
-{
-    //iterates through the board
-    for(int i = 0; i < 17; i++){
-        for(int j = 0; j < 17; j++){
-            ExternalBoardSquare& sq = lrs[i][j];
-            if((sq.blueRobotPresent() && rc == XBLUE) ||(sq.redRobotPresent() && rc == XRED)){
-                return{i, j};
-            }
+        //simulates making the move on the board
+        if(possibleMove == FORWARD){
+            nextpos = getNextPos(position, dir);
         }
-    }  
-    //if robot not found on the board (should not occur)
-    return{-1, -1};
-}
+        else {
+            nextdir = rotate(dir, possibleMove);
+        }
 
-/**
- * Gets the next position on the board
- * @param Direction dir
- * @return Location of next position 
- */
-Location AntiRandom::getNextPos(Location pos, Direction dir)
-{
-    switch(dir){
-        case NORTH:
-            return {(pos.x - 1), pos.y};
-        case EAST:
-            return {pos.x, (pos.y + 1)};
-        case SOUTH:
-            return {(pos.x + 1), pos.y};
-        case WEST:
-            return {pos.x, (pos.y - 1)};
+        //skips invalid moves
+        if(!isInBounds(nextpos) || isBoundary(map[nextpos.x][nextpos.y].type)){
+            continue;
+        }
+
+        //skip points (this indicates we found an invalid getNextPos(...))
+        if(nextpos.x == -1 && nextpos.y == -1){
+            continue;
+        }
+
+        //add to tempmoves
+        tempmoves.push_back(possibleMove);
+        
+        //score the pathway 
+        int score = 0;
+        Location path = nextpos;
+
+        while(isInBounds(path) && !isBoundary(map[path.x][path.y].type)){
+            //prvents the number of moves we can save in a row 
+            if(tempmoves.size() > 30){
+                break;
+            }
+            if(!map[path.x][path.y].marked){
+                //bonus for unexplored squares
+                score += 10;
+            }
+            tempmoves.push_back(FORWARD);
+            path = getNextPos(path, nextdir);
+        }
+
+        //choose the best score
+        if(score > maxScore){
+            maxScore = score;
+            bestPath = tempmoves;
+        }
+    } 
+    //if valid path was found, update moves queue
+    if(!bestPath.empty()){
+        move = bestPath[0];
+        moves.insert(moves.end(), bestPath.begin() + 1, bestPath.end());
     }
-    //if no direction (should not occur)
-    return pos;
+    else{
+        //if no valid pathways found, fall back on autopile
+        move = autoPilot();
+    }
+       
+    return move;
 }

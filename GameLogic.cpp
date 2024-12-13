@@ -162,7 +162,7 @@ void GameLogic::playGame(string boardconfig, string robotconfig)
 
         //pauses the game (until user provides input)
         if(pause){
-            cout << "Press ANYTHING to continue." << endl;
+            cout << "Press ENTER to continue." << endl;
             string userinput;
             getline(cin, userinput);
         }

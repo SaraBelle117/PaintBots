@@ -6,6 +6,17 @@ enum SquareType {EMPTY, ROCK, FOG, WALL, FOGANDROCK};
 
 enum SquareColor {RED, BLUE, WHITE};
 
+enum RobotColor {XRED, XBLUE};
+
+enum RobotMove{ROTATELEFT, ROTATERIGHT, FORWARD, NONE};
+
+struct RobotMoveRequest{ 
+    RobotColor robot;
+    RobotMove move;
+    bool shoot;
+    bool lrs;
+};
+
 //for tracking BoardSquares
 struct Location{
     int x;

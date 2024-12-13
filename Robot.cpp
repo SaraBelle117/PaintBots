@@ -33,8 +33,6 @@ void Robot::update(ObservableData<GameBoard> *data)
 {   
     //updates the last recieved data
     lastData = data;
-    //fetches the event type
-    Event event = data->getEvent();
 
     if(data->getEvent() == ROBOT_MOVE){
         //ensures we are accessing a valid agent 
