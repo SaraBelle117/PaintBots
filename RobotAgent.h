@@ -92,7 +92,10 @@ class RandomRobot : public IRobotAgent{
 
 
 };
-//class Robot;
+
+/**
+ * ANTI RANDOM -- Beats the RandomRobot 8/10 times :) 
+ */
 class AntiRandom : public IRobotAgent 
 {
     private:

@@ -34,6 +34,8 @@ Additional game rules:
 ## Observer Pattern & Singleton Pattern
 This project uses the Observer Pattern to notify the various observers of the Observable GameBoard. The current implementation has the PlainDisplay registered as an observer, and I expect us to add the score of the game, and robots as observers in the future. The GameBoard is also an implementation of the Singleton Pattern. 
 
+Part C: RobotAgentRoster is also a Singleton, and the Robots are also observers of the GameBoard. 
+
 ## Running the Program
 To run the test files, type "make", and you can run each test as follows:
 
@@ -42,6 +44,7 @@ To run the test files, type "make", and you can run each test as follows:
 ./ExternalBoardSquareTest
 ./BoardSquareTest
 ./GameBoardTest
+./paintbots <Config> <RobotConfig>
 
 ## Display of the Game
 PlainDisplay shows the 17 x 17 GameBoard -- I decided to go with 17 x 17 to show the walls for simplicity, even though the playable area is only 15 x 15. 
@@ -54,12 +57,17 @@ Here is how it displays each BoardSquare:
     3. The third letter represents if a rock sqwuare is present (X, or -)
     4. The third letter represents if a fog square is present (X, or -)
 
-I also added colors for the given types of squares just for extra readability. Robots and SquareColors are their actual colors, while the Robots are "bold" to stand out a bit more. Additionally, ROCK squares are green, while FOG squares are yellow, and WALL squares are purple. 
+I also added colors for the given types of squares just for extra readability. Robots and SquareColors are their actual colors, while the Robots are "bold" to stand out a bit more. Additionally, ROCK squares are green, while FOG squares are yellow, and WALL squares are purple. I added static declarations to allow GameLogic to utilize them when the game is over as well. 
+
+## Playable Robot Strategies [can be found "RobotAgent.h", and "Robot.cpp"]
+[LazyRobot] -- Does not move from the initial square, and fires a paintblob each turn into a random direction. 
+[RandomRobot] -- Moves in a random direction to a legal square (not a rock or a wall square, or another robot) and never fires a paintblob. 
+[AntiRandom] -- Beats the RandomRobot AT LEAST 8/10 times in a game. Always shoots a paintblob, and has a backup method for choosing a RobotMove based on the short range scan. 
 
 ## Please Note
 As always, I had to make some assumptions for Part B (as we are not quite implementing the full game just yet), so here is a list of some things that were not implemented on purpose:
 - There is currently only one Observer of the GameBoard -- PlainDisplay.
 - PaintBlobHit() in GameBoard does not increment the number of PaintBlobs for either robot. 
-- moveRobot() always returns true as a move can always be made.
+- moveRobot() always returns true as a move can always be made. Part C: Unless a game ending event is found. 
 - getLongRangeScan() does not check whether or not the given robot has enough calls left to make.
-- There is no game logic (per the specification), so game-ending events are not checked. 
+- There is no game logic (per the specification), so game-ending events are not checked. Part C: Game ending events are now checked in GameLogic! 
