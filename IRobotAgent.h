@@ -28,6 +28,11 @@ class RobotAgentRoster
          */
         RobotAgentRoster() = default;
 
+        virtual ~RobotAgentRoster()
+        {
+            roster.clear();
+        }
+
     public:
 
         /**
@@ -77,7 +82,6 @@ class RobotAgentRoster
         {
             for(IRobotAgent* agent : roster){
                 if(agent->getRobotName() == name){
-                    cout << "String name: " << name << endl;
                     return agent;
                 }
             }

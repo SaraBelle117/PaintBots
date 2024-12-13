@@ -12,6 +12,8 @@ class Robot : public Observer<GameBoard>
         IRobotAgent* agent;
         RobotColor color;
         ObservableData<GameBoard> *lastData = nullptr;
+        Location enemypos;
+        
 
     public:
         SquareColor paintcolor;
@@ -32,5 +34,14 @@ class Robot : public Observer<GameBoard>
         IRobotAgent *getRobotAgent();
         void setColor(RobotColor);
         RobotColor getRobotColor();
+
+        /**
+         * Fetches the enemy's location for the RobotAgent
+         * @return Location of the enemy robot
+         */
+        Location getEnemyPosition() const 
+        {
+            return enemypos;
+        }
 
 };

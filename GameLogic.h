@@ -3,6 +3,8 @@
 #include "GameBoard.h"
 using namespace std;
 
+class PlainDisplay;
+
 class GameLogic
 {
     private:
@@ -10,6 +12,8 @@ class GameLogic
         Robot *red;
         Robot *blue;
         bool pause;
+        bool red_lrs;
+        bool blue_lrs;
 
     public:
         //default constructor

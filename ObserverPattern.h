@@ -1,14 +1,15 @@
 #pragma once
-#include "BoardSquare.h"
-#include "Robot.h"
 #include <vector>
 #include <algorithm>
+#include "BoardSquare.h"
 using namespace std;
+
+//class BoardSquare
+class GameBoard;
 
 enum Event {
     SQUARE_COLOR,
     ROBOT_MOVE,
-    SCORE_UPDATE,
     SQUARE_TYPE
 };
 
@@ -21,22 +22,19 @@ class ObservableData {
         union Data{
 
             struct {
-                Location pos;
+                Location position;
                 SquareColor color;
-            } SquareColorData;
+            } square_color;
 
             struct { 
-                RobotMoveRequest mr;
-            } robotMoveData;
-
-            struct {
-                int score;
-            } scoreUpdateData;
+                Location position;
+                RobotColor color;
+            } robot_move;
 
             struct{
                 Location position;
                 SquareType sq;
-            } squareTypeData;
+            } square_type;
 
         } data;
 

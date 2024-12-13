@@ -34,20 +34,17 @@ void Robot::update(ObservableData<GameBoard> *data)
     lastData = data;
     Event event = data->getEvent();
 
+    //handles event types
     if(event == SQUARE_COLOR){
-        // = data->getData().squareColorData;
+        //auto square_color = data->getData().square_color;
     }
     else if(event == ROBOT_MOVE){
-        //handle robot move
-        // = data->getData().robotMoveData;
-    }
-    else if(event == SCORE_UPDATE){
-        //handle score update
-        // = data->getData().scoreUpdataData;
+        //updates enemy robot's location
+        //auto robotmove = data->getData().robot_move;
     }
     else if(event == SQUARE_TYPE){
-        //handle square type
-        // = data->getData().squareTypeData;
+        //auto squaretype = data->getData().square_type;
+
     }
 }
 

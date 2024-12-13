@@ -92,17 +92,46 @@ class RandomRobot : public IRobotAgent{
 
 
 };
-
+//class Robot;
 class AntiRandom : public IRobotAgent 
 {
     private:
         string name =  "AntiRandom";
         string robotcreator = "Sara Theriault";
         RobotColor color;
+        ExternalBoardSquare** lastlrs;
+        vector<RobotMove> moves;
 
-    public: 
+        enum Group {QUADRANT1, QUADRANT2, QUADRANT3, QUADRANT4};
+
+    public:
+
         //implemented in .cpp file
         virtual RobotMoveRequest* getMove(ExternalBoardSquare** srs, ExternalBoardSquare** lrs); 
+        
+        //helps determine move on the board 
+        RobotMove determineMove(ExternalBoardSquare** srs);
+
+        //helper method, implemented in .cpp file
+        bool isBoundary(SquareType);
+
+        //helper method, implemented in .cpp file
+        int checkDangerLevel(ExternalBoardSquare** srs, Group quadrant);
+
+        //helper method to check for corners
+        int isCorner(ExternalBoardSquare** srs);
+
+        //establishes move if we are in a corner square
+        RobotMove escapeCorner(ExternalBoardSquare** srs);
+
+        //helper method for finding path using long range scan
+        RobotMove findPath(ExternalBoardSquare** lrs);
+
+        //helper method for finding the next position
+        Location getNextPos(Location pos, Direction dir);
+
+        //helper method to find robot on the board using long range scan
+        Location findRobot(ExternalBoardSquare** lrs, RobotColor rc);
 
         /**
          * Returns the name of the given robot
