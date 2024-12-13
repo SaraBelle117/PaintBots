@@ -634,16 +634,16 @@ Location GameBoard::find(RobotColor rc)
 Location GameBoard::getNextPosition(Location point, Direction dir){
     switch(dir){
         case NORTH: //move up
-            point.y--; 
+            point.x--; 
             return point;
         case EAST:  //move right
-            point.x++;
-            return point;
-        case SOUTH: //move down
             point.y++;
             return point;
+        case SOUTH: //move down
+            point.x++;
+            return point;
         case WEST: //move left
-            point.x--;
+            point.y--;
             return point;
     }
     //if the direction is invalid, just return the same point (this is a placeholder for future logic
