@@ -469,7 +469,7 @@ class AntiRandom : public IRobotAgent
                 Location nextpos = getNextPos(pos, dir);
             
                 if(!isInBounds(nextpos) || isBoundary(map[nextpos.x][nextpos.x].type)){
-                    return (rand() % 2 == 0) ? ROTATELEFT : ROTATERIGHT;
+                    return ROTATERIGHT;
                 }
             }
 

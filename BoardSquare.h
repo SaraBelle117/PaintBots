@@ -21,6 +21,11 @@ struct RobotMoveRequest{
 struct Location{
     int x;
     int y;
+
+    bool operator<(const Location & other) const
+    {
+        return(x < other.x) || (x == other.x && y < other.y);
+    }
 };
 
 class BoardSquare{

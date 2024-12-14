@@ -1,4 +1,5 @@
 #include "RobotAgent.h"
+#include <set>
 #include <cmath>
 //#include "Robot.h"
 using namespace std;
@@ -115,6 +116,7 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
             }
             else{
                 mr->move = autoPilot();
+                mr->lrs = true;
             }
         }
     }
@@ -128,6 +130,7 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
         mr->lrs = true;
     }
 
+
     //final safety check
     if(mr->move == FORWARD){
         Location forwardPos = getNextPos(pos, srs[2][2].robotDirection());
@@ -136,7 +139,7 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
             mr->move = autoPilot();
             mr->lrs = true;
         }
-    }
+    } 
 
     return mr;
 }
@@ -264,6 +267,7 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
     for(RobotMove possibleMove : {FORWARD, ROTATERIGHT, ROTATELEFT}){
         //vector to hold possible moves
         vector<RobotMove> tempmoves;
+        set<Location> visitedPath;
         Location nextpos = position;
         Direction nextdir = dir;
 
@@ -291,8 +295,16 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
             if(map[path.x][path.y].type == ROCK || map[path.x][path.y].type == FOGANDROCK){
                 break;
             } 
+
+            if(visitedPath.find(path) != visitedPath.end()){
+                score -= 100;
+            }
+            else{
+                visitedPath.insert(path);
+            }
             
             int visits = map[path.x][path.y].visits;
+
             //identifies corresponding squarecolor
             SquareColor sqcolor = (color == XRED) ? RED : BLUE;
 
@@ -302,15 +314,15 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
             //higher scores correspond with lower number of visits
             if(visits == 0){
                 //score boost for unvisited squares
-                score += 50;
+                score += 100;
             }
             else{
                 //score calculates higher visits scores as increasingly less
-                score += 1 / pow(visits, 2);
+                score -= pow(2, visits) * 20;
             }
             
-            //forward moves give 5 points
-            if(possibleMove == FORWARD) score += 5;
+            //forward moves grow as we move forward on the board
+            if(possibleMove == FORWARD) score += static_cast<int>(tempmoves.size()) * 10;
 
             //count number of obstacles nearby
             int penalty = 0;
@@ -325,12 +337,12 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
                     SquareType neighborType = map[neighbor.x][neighbor.y].type;
 
                     //calculates distance between barriers
-                    int distance = abs(x) + abs(y);
+                    int distance = (abs(x) + abs(y));
                     if(neighborType == WALL){
-                        penalty += (35 - distance);
+                        penalty += (10 - distance);
                     }
                     else if(neighborType == ROCK || neighborType == FOGANDROCK){
-                        penalty += (25 - distance);
+                        penalty += (15 - distance);
                     }
                 }
             }
