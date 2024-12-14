@@ -138,10 +138,11 @@ class AntiRandom : public IRobotAgent
     struct Info{
         SquareType type;
         Direction dir;
-        bool marked;
+        //bool marked;
+        int visits;
 
-        Info(SquareType t = EMPTY, Direction d = NORTH, bool m = false) 
-        : type(t), dir(d), marked(m) {}
+        Info(SquareType t = EMPTY, Direction d = NORTH, int v = 0) 
+        : type(t), dir(d), visits(v) {}
     };
 
     private:
@@ -168,8 +169,10 @@ class AntiRandom : public IRobotAgent
                     //updates map type & direction data
                     map[i][j].type = lrs[i][j].getSquareType();
                     map[i][j].dir = lrs[i][j].robotDirection();
-                    //marked is true (if already marked) and if our position is a match on the board
-                    map[i][j].marked = map[i][j].marked || (found && pos.x == i && pos.y == j);
+                    //increment number of visits (if position is recognized as this point)
+                    if(found && pos.x == i && pos.y == j){
+                        map[i][j].visits++;
+                    }
                 }
             }
         }
@@ -203,25 +206,17 @@ class AntiRandom : public IRobotAgent
             if(mr == ROTATERIGHT){
                 switch(dir){
                     case NORTH: return EAST;
-                        break;
                     case EAST: return SOUTH;
-                        break;
                     case SOUTH: return WEST;
-                        break;
                     case WEST: return NORTH;
-                        break;
                 }
             }
             else if(mr == ROTATELEFT){
                 switch(dir){
                     case NORTH: return WEST;
-                        break;
                     case WEST: return SOUTH;
-                        break;
                     case SOUTH: return EAST;
-                        break;
                     case EAST: return NORTH;
-                        break;
                 }
             }
             else{
@@ -400,7 +395,6 @@ class AntiRandom : public IRobotAgent
          */
         RobotMove hailMary(Direction dir )
         { 
-            cout << "Hail mary.." << endl;
             if(!shortboard){
                 return (rand() % 2 == 0) ? ROTATELEFT : ROTATERIGHT;
             }
@@ -410,61 +404,75 @@ class AntiRandom : public IRobotAgent
             ExternalBoardSquare westsq = shortboard[2][1];
             ExternalBoardSquare eastsq = shortboard[2][3];
 
+            //default move
+            RobotMove bestmove = ROTATERIGHT;
+
             switch(dir){
                 case NORTH:
                     if(!isBoundary(northsq.getSquareType())){
-                        return FORWARD;
+                        bestmove = FORWARD;
                     }
                     else {
                         if(checkDangerLevel(shortboard, QUADRANT2) <  checkDangerLevel(shortboard, QUADRANT1)){
-                            return ROTATELEFT;
+                            bestmove =  ROTATELEFT;
                         }
                         else{
-                            return ROTATERIGHT;
+                            bestmove = ROTATERIGHT;
                         }
                     }
                     break;
 
                 case SOUTH:
                     if(!isBoundary(southsq.getSquareType())){
-                        return FORWARD;
+                        bestmove = FORWARD;
                     }
                     else {
                         if(checkDangerLevel(shortboard, QUADRANT3) <  checkDangerLevel(shortboard, QUADRANT4)){
-                            return ROTATERIGHT;
+                            bestmove =  ROTATERIGHT;
                         }
                         else{
-                            return ROTATELEFT;
+                            bestmove = ROTATELEFT;
                         }
                     }
                     break;
                 case WEST:
                     if(!isBoundary(westsq.getSquareType())){
-                        return FORWARD;
+                        bestmove = FORWARD;
                     }
                     else {
                         if(checkDangerLevel(shortboard, QUADRANT2) <  checkDangerLevel(shortboard, QUADRANT3)){
-                            return ROTATERIGHT;
+                            bestmove = ROTATERIGHT;
                         }
                         else{
-                            return ROTATELEFT;
+                            bestmove = ROTATELEFT;
                         }
                     }
                     break;
 
                 case EAST:
                     if(!isBoundary(eastsq.getSquareType())){
-                        return FORWARD;
+                        bestmove = FORWARD;
                     }
                     else {
                         if(checkDangerLevel(shortboard, QUADRANT1) <  checkDangerLevel(shortboard, QUADRANT4)){
-                            return ROTATELEFT;
+                            bestmove = ROTATELEFT;
                         }
                         else{
-                            return ROTATERIGHT;
+                            bestmove = ROTATERIGHT;
                         }
                     }
                     break;
             }
+
+            //validate that the best move is valid
+            if(bestmove == FORWARD){
+                Location nextpos = getNextPos(pos, dir);
+            
+                if(!isInBounds(nextpos) || isBoundary(map[nextpos.x][nextpos.x].type)){
+                    return (rand() % 2 == 0) ? ROTATELEFT : ROTATERIGHT;
+                }
+            }
+
+            return bestmove;
         }
 };

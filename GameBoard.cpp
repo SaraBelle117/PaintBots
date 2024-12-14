@@ -720,7 +720,6 @@ bool GameBoard::isGameOver()
     //if red and blue robot are on same square, game should be over
     if(red_pos.x == blue_pos.x && red_pos.y == blue_pos.y){
         //assigns the winner robot
-        cout << "Robots on same square! GAME OVER" << endl;
         return true;
     }
 
@@ -729,13 +728,11 @@ bool GameBoard::isGameOver()
     InternalBoardSquare& blue_sq = getSquare(blue_pos.x, blue_pos.y);
 
     if(red_sq.getSquareType() == WALL || red_sq.getSquareType() == ROCK || red_sq.getSquareType() == FOGANDROCK){
-            cout << "Red robot on boundary... BLUE WIN!" << endl;
             winner = RobotColor::XBLUE;
             return true;
     }
 
     if(blue_sq.getSquareType() == WALL || blue_sq.getSquareType() == ROCK || blue_sq.getSquareType() == FOGANDROCK){
-        cout << "Blue robot on boundary... RED WIN!" << endl;
         winner = RobotColor::XRED;
         return true;
     }

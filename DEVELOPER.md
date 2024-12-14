@@ -50,7 +50,7 @@ ObservableData: there are three notable changes in the game state -- when the sc
 
 - Robot: [AS-A] Observer<GameBoard> Contains all of the information for the robots of the game -- sets the agent, gets updates from the Observable (GameBoard).  
 
-- RobotAgent: [AS-A] IRobotAgent -- contains "LazyRobot", "RandomRobot", "AntiRandom". 
+- RobotAgent: [AS-A] IRobotAgent -- contains "LazyRobot", "RandomRobot", "AntiRandom". AntiRandom has many, many helper methods, and it the code is admittedly messy. I struggled with the design for this, to be honest -- I wasn't able to get it to a point where I was happy with it. There was always something that you had to sacrifice -- check for as many possible moves as possible increases the worst case runtime too much, but prioritizing memory can lead to things not being checked correctly. I will admit I am not happy with the result, but I know that I did the best I possibly could. 
 
 - RobotAgentRoster: Roster to hold the data for the RobotAgents.
 

@@ -62,7 +62,7 @@ I also added colors for the given types of squares just for extra readability. R
 ## Playable Robot Strategies [can be found "RobotAgent.h", and "Robot.cpp"]
 [LazyRobot] -- Does not move from the initial square, and fires a paintblob each turn into a random direction. 
 [RandomRobot] -- Moves in a random direction to a legal square (not a rock or a wall square, or another robot) and never fires a paintblob. 
-[AntiRandom] -- Beats the RandomRobot AT LEAST 8/10 times in a game. Always shoots a paintblob, and has a backup method for choosing a RobotMove based on the short range scan. 
+[AntiRandom] -- Beats the RandomRobot AT LEAST 8/10 times in a game. Always shoots a paintblob, and has a backup method for choosing a RobotMove based on the short range scan. Had I had more time with this project, I would have made some big changes to the design for this RobotAgent, but I did the best I could with the time I was given.  
 
 ## Please Note
 As always, I had to make some assumptions for Part B (as we are not quite implementing the full game just yet), so here is a list of some things that were not implemented on purpose:

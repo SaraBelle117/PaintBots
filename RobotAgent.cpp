@@ -89,8 +89,11 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
     //updates our short range scan 
     updateShortRangeScan(srs);
 
-    //always to do a long range scan
-    mr->lrs = true;
+    //if we are on a fog square (all the surrounding squares are empty in srs)
+    if(srs[2][2].getSquareType() == FOG){
+        //next move we will have more visibility on the board
+        mr->lrs = true;
+    }
     
     //check there are no moves decided already
     if(!moves.empty()){
@@ -104,6 +107,7 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
             mr->move = potentialMove;
         }
         else{
+            //the move we planned is now invalid, so clear the moves vector
             moves.clear();
             if(lrs){
                 mr->move = findPath(lrs);
@@ -133,46 +137,44 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
  */
 RobotMove AntiRandom::autoPilot()
 {
-    cout << "Autopiloting............" << endl;
     //if the short range scan is not available, return this move as a safety precaution
     if(!shortboard){
-        return ROTATELEFT;
+        return (rand() % 2 == 0) ? ROTATELEFT : ROTATERIGHT;
     }
 
-    //sets the Squarecolor (corresponding to our robot's color)
-    //SquareColor squarecolor = (color == XRED) ? RED : BLUE;
-
     Direction dir = shortboard[2][2].robotDirection();
-    //SquareType type = shortboard[2][2].getSquareType();
+    //default value that will be overridden (hopefully)
+    RobotMove bestmove = ROTATELEFT;
+    //for tracking score with minimum number of visits
+    int minVisits = 100;
     
     //access map data (if available)
     for(RobotMove move : {FORWARD, ROTATELEFT, ROTATERIGHT}){
-        Location nextpos = getNextPos(pos, dir);
-
-        if(move != FORWARD){
-            dir = rotate(shortboard[2][2].robotDirection(), move);
-        }
+        //adjusts the next direction (based on orientation)
+        Direction nextdir = (move == FORWARD) ? dir : rotate(dir, move);
+        //gets next position on the board
+        Location nextpos = getNextPos(pos, nextdir);
 
         //skips invalid points
-        if(nextpos.x == -1 && nextpos.y == -1){
+        if(nextpos.x == -1 || nextpos.y == -1 || !isInBounds(nextpos)){
             continue;
         }
-
+        //skips bounndary points
         if(isBoundary(map[nextpos.x][nextpos.y].type) || map[nextpos.x][nextpos.y].type == WALL){
             continue;
         }
 
-        //prioritizes squares we have not yet visited
-        if(map[nextpos.x][nextpos.y].marked){
-            continue;
+        if(map[nextpos.x][nextpos.y].visits < minVisits){
+            minVisits = map[nextpos.x][nextpos.y].visits;
+            bestmove = move;
         }
-        //mark square as visited
-        map[nextpos.x][nextpos.y].marked = true;
-        return move;
     }
-
-    //if no valid moves, throw a hail mary
-    return hailMary(dir);
+    //if minvisits is still 100, no suitable moves found
+    if(minVisits == 100){
+        return hailMary(dir);
+    }
+    //returns best move found
+    return bestmove;
    
 }
 
@@ -225,7 +227,6 @@ int AntiRandom::checkDangerLevel(ExternalBoardSquare** srs, Group quadrant)
  */
 RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
 { 
-    cout << "Finding path............" << endl;
     //updates our map
     updateMap(lrs);
 
@@ -242,18 +243,12 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
         //if position could not be verified, default to autopilot 
         return autoPilot();
     }
-    //update our map
-    map[position.x][position.y].marked = true;
-
     Direction dir = lrs[position.x][position.y].robotDirection();
 
     //to hold possible moves
     vector<RobotMove> bestPath;
 
-    //assigns corresponding square color
-    //SquareColor squarecolor = (color == XRED) ? RED : BLUE;
-
-    for(RobotMove possibleMove : {FORWARD, ROTATELEFT, ROTATERIGHT}){
+    for(RobotMove possibleMove : {FORWARD, ROTATERIGHT, ROTATELEFT}){
         //vector to hold possible moves
         vector<RobotMove> tempmoves;
         Location nextpos = position;
@@ -262,9 +257,11 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
         //simulates making the move on the board
         if(possibleMove == FORWARD){
             nextpos = getNextPos(position, dir);
+            nextdir = dir;
         }
         else {
             nextdir = rotate(dir, possibleMove);
+            nextpos = getNextPos(position, nextdir);
         }
 
         //skips invalid moves
@@ -276,25 +273,52 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
         if(nextpos.x == -1 && nextpos.y == -1){
             continue;
         }
-
-        //add to tempmoves
-        tempmoves.push_back(possibleMove);
         
         //score the pathway 
         int score = 0;
         Location path = nextpos;
 
-        while(isInBounds(path) && !isBoundary(map[path.x][path.y].type)){
-            //prvents the number of moves we can save in a row 
-            if(tempmoves.size() > 30){
-                break;
+        while(isInBounds(path) && !isBoundary(map[path.x][path.y].type) && tempmoves.size() <= 10){
+            int visits = map[path.x][path.y].visits;
+            //higher scores correspond with lower number of visits
+            if(visits == 0){
+                //score boost for unvisited squares
+                score += 50;
             }
-            if(!map[path.x][path.y].marked){
-                //bonus for unexplored squares
-                score += 10;
+            else{
+                //score calculates higher visits scores as increasingly less
+                score += 20 / (visits + 1);
             }
+
+            //count number of obstacles nearby
+            int penalty = 0;
+
+            //iterates nearby points for possible obstacles
+            for(int x = -2; x <= 2; x++){
+                for(int y = -2; y <= 2; y++){
+                    //skip the same point
+                    if(x == 0 && y == 0) continue;
+                    Location neighbor = {path.x + x, path.y + y};
+                    if(!isInBounds(neighbor)) continue;
+                    SquareType neighborType = map[neighbor.x][neighbor.y].type;
+
+                    //calculates distance between barriers
+                    int distance = abs(x) + abs(y);
+                    if(neighborType == WALL){
+                        penalty += (30 - distance);
+                    }
+                    else if(neighborType == ROCK || neighborType == FOGANDROCK){
+                        penalty += (25 - distance);
+                    }
+                }
+            }
+
+            //score updates with the obstacle penalty
+            score -= penalty;
+
             tempmoves.push_back(FORWARD);
             path = getNextPos(path, nextdir);
+            if(!isInBounds(path)) break;
         }
 
         //choose the best score
@@ -304,12 +328,13 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
         }
     } 
     //if valid path was found, update moves queue
-    if(!bestPath.empty()){
+    if(!bestPath.empty() && isInBounds(getNextPos(position, dir))){
         move = bestPath[0];
+        moves.clear();
         moves.insert(moves.end(), bestPath.begin() + 1, bestPath.end());
     }
     else{
-        //if no valid pathways found, fall back on autopile
+        //if no valid pathways found, fall back on autopilot
         move = autoPilot();
     }
        
