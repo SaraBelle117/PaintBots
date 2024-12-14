@@ -90,7 +90,7 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
     updateShortRangeScan(srs);
 
     //if we are on a fog square (all the surrounding squares are empty in srs)
-    if(srs[2][2].getSquareType() == FOG){
+    if(srs[2][2].getSquareType() == FOG || map[pos.x][pos.y].visits > 0){
         //next move we will have more visibility on the board
         mr->lrs = true;
     }
@@ -103,7 +103,7 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
 
         Location nextPos = getNextPos(pos, rotate(srs[2][2].robotDirection(), potentialMove));
 
-        if(isInBounds(nextPos) && !isBoundary(map[nextPos.x][nextPos.y].type)){
+        if(isInBounds(nextPos) && !isBoundary(map[nextPos.x][nextPos.y].type) &&  map[nextPos.x][nextPos.y].visits < 2){
             mr->move = potentialMove;
         }
         else{
@@ -125,6 +125,16 @@ RobotMoveRequest* AntiRandom::getMove(ExternalBoardSquare** srs, ExternalBoardSq
         mr->move = autoPilot();
         //attempt to do a better move next time...
         mr->lrs = true;
+    }
+
+    //final safety check
+    if(mr->move == FORWARD){
+        Location forwardPos = getNextPos(pos, srs[2][2].robotDirection());
+        if(!isInBounds(forwardPos) || isBoundary(map[forwardPos.x][forwardPos.y].type)){
+            moves.clear();
+            mr->move = autoPilot();
+            mr->lrs = true;
+        }
     }
 
     return mr;
@@ -271,17 +281,23 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
             continue;
         }
 
-        //skip points (this indicates we found an invalid getNextPos(...))
-        if(nextpos.x == -1 && nextpos.y == -1){
-            continue;
-        }
-        
         //score the pathway 
         int score = 0;
         Location path = nextpos;
 
-        while(isInBounds(path) && !isBoundary(map[path.x][path.y].type) && tempmoves.size() <= 10){
+        while(isInBounds(path) && !isBoundary(map[path.x][path.y].type) && tempmoves.size() <= 25){
+            //break path if rock found
+            if(map[path.x][path.y].type == ROCK || map[path.x][path.y].type == FOGANDROCK){
+                break;
+            } 
+            
             int visits = map[path.x][path.y].visits;
+            //identifies corresponding squarecolor
+            SquareColor sqcolor = (color == XRED) ? RED : BLUE;
+
+            if(lrs[path.x][path.y].getSquareColor() != sqcolor){
+                score += 40;
+            }
             //higher scores correspond with lower number of visits
             if(visits == 0){
                 //score boost for unvisited squares
@@ -289,8 +305,11 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
             }
             else{
                 //score calculates higher visits scores as increasingly less
-                score += 20 / (visits + 1);
+                score += 1 / pow(visits, 2);
             }
+            
+            //forward moves give 5 points
+            if(possibleMove == FORWARD) score += 5;
 
             //count number of obstacles nearby
             int penalty = 0;
@@ -307,7 +326,7 @@ RobotMove AntiRandom::findPath(ExternalBoardSquare** lrs)
                     //calculates distance between barriers
                     int distance = abs(x) + abs(y);
                     if(neighborType == WALL){
-                        penalty += (30 - distance);
+                        penalty += (35 - distance);
                     }
                     else if(neighborType == ROCK || neighborType == FOGANDROCK){
                         penalty += (25 - distance);
