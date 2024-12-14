@@ -65,7 +65,7 @@ class RobotAgentRoster
         IRobotAgent* operator[](int index) const
         {
             //checks that index is valid
-            if(index >= 0 && index < roster.size()){
+            if(index >= 0 && index < static_cast<int>(roster.size())){
                 return roster[index];
             }
             
