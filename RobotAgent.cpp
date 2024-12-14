@@ -218,6 +218,8 @@ int AntiRandom::checkDangerLevel(ExternalBoardSquare** srs, Group quadrant)
             return threats;
             break;      
     }
+    //bug fixing
+    return threats;
 }
 
 /**

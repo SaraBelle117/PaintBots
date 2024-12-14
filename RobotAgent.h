@@ -219,10 +219,8 @@ class AntiRandom : public IRobotAgent
                     case EAST: return NORTH;
                 }
             }
-            else{
-                //if not rotate left or right
-                return dir;
-            }
+            //if not rotate left or right
+            return dir;
         }
 
         /**
@@ -462,6 +460,8 @@ class AntiRandom : public IRobotAgent
                         }
                     }
                     break;
+                //if point reached
+                bestmove = ROTATELEFT;
             }
 
             //validate that the best move is valid
